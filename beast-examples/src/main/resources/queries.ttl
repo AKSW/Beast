@@ -1,0 +1,18 @@
+@prefix q: <http://example.org/query/> .
+@prefix t: <http://example.org/test/> .
+@prefix lsq: <http://lsq.aksw.org/vocab#> .
+@prefix qc: <http://sparql-qc-bench.inrialpes.fr/testsuite#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+
+q:q1a
+  lsq:text "SELECT * { ?s ?p ?o } LIMIT 10" ;
+  .
+
+t:t1a
+  a qc:ContainmentTest ;
+  qc:sourceQuery q:q1a ;
+  qc:targetQuery q:q1a ;
+  qc:result "{?p=?p, ?o=?o, ?s=?s, ?v_1=?v_1}" ;
+  .
+
