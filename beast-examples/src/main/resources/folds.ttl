@@ -1,0 +1,23 @@
+@prefix q: <http://example.org/query/> .
+@prefix t: <http://example.org/test/> .
+@prefix lsq: <http://lsq.aksw.org/vocab#> .
+@prefix qc: <http://sparql-qc-bench.inrialpes.fr/testsuite#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+@prefix ex: <http://example.org/> .
+
+
+ex:data1
+  a ex:Sample ;
+  ex:positive (
+  	"a"
+  	"b"
+  	"c"
+  ) ;
+  ex:negative (
+  	"d"
+  	"e"
+  ) ;
+  .
+
+
