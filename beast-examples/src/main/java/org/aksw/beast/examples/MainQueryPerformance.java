@@ -2,7 +2,7 @@ package org.aksw.beast.examples;
 
 import static org.aksw.jena_sparql_api.rdf_stream.core.RdfStream.map;
 import static org.aksw.jena_sparql_api.rdf_stream.core.RdfStream.peek;
-import static org.aksw.jena_sparql_api.rdf_stream.core.RdfStream.withIndex;
+import static org.aksw.jena_sparql_api.rdf_stream.core.RdfStream.repeat;
 
 import java.util.List;
 
@@ -31,9 +31,9 @@ public class MainQueryPerformance {
 
 		Model m = RDFDataMgr.loadModel("queries.ttl");
 
-		String uriPattern = "http://example.org/{0}";
-
 		List<Resource> tasks = m.listSubjectsWithProperty(LSQ.text).toList();
+
+		String uriPattern = "http://example.org/observation/{0}-{1}";
 
 		RdfStream.start()
 		// Parse the work load resource's query and attach it as a trait
@@ -50,8 +50,9 @@ public class MainQueryPerformance {
 				qef.createQueryExecution(w.as(ResourceEnh.class).getTrait(Query.class).get()).execSelect()))))
 
 //		.andThen(repeat(2, IguanaVocab.run))
-		.andThen(withIndex(IV.item))
-		.andThen(map(r -> r.as(ResourceEnh.class).rename(uriPattern, IV.item)))
+		//.andThen(withIndex(IV.item))
+		.andThen(repeat(5, IV.run, 1))
+		.andThen(map(r -> r.as(ResourceEnh.class).rename(uriPattern, r.getProperty(IguanaVocab.workload).getResource().getLocalName(), IV.run)))
 		.apply(() -> tasks.stream()).get()
 		.forEach(r -> r.getModel().write(System.out, "TURTLE"));
 
