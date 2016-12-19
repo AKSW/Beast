@@ -17,8 +17,8 @@ While technically Beast essentially provides utilities for chaining functions an
 
 ## Examples
 
-* [Performance Measurement](beast-examples/src/main/java/org/aksw/beast/examples/MainQueryPerformance.java)
-* [KFoldCrossValidation](beast-examples/src/main/java/org/aksw/beast/examples/MainKFoldCrossValidation.java)
+* [Performance Measurement](beast-examples/src/main/java/org/aksw/beast/examples/MainQueryPerformance.java) [queries.ttl](beast-examples/src/main/resources/queries.ttl)
+* [KFoldCrossValidation](beast-examples/src/main/java/org/aksw/beast/examples/MainKFoldCrossValidation.java) [folds.ttl](beast-examples/src/main/resources/folds.ttl)
 
 
 ## Dependencies
