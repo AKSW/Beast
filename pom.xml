@@ -50,10 +50,8 @@
 
 
 	<modules>
-		<module>lsq-vocab-jena</module>
-		<module>lsq-core</module>
-		<module>lsq-cli</module>
-		<module>lsq-debian-cli</module>
+		<module>beast-core</module>
+		<module>beast-examples</module>
 	</modules>
 
 	<properties>
