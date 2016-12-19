@@ -6,10 +6,10 @@ any measurements directly in  RDF using the vocabulary of your choice (such as D
 
 ## Features
 
-* Construction of Resource-centric Java streams. Hence, plain RDF properties can be attached to resources as part of stream execution.
+* Construction of Resource-centric Java streams. Hence, plain RDF properties can be attached to resources as part of the stream execution.
 * Extension to Jena which enhances Resources with support for attaching and retrieving Java objects by class. This means you can e.g. attach a parsed Jena Query object to a resource that represents a SPARQL query string.
 * Looping with the loops state getting attached to the resource.
-* No need to know the URI for resources in advance. You can give painlessly give them a proper name *at the end* of the workflow *based on its properties*.
+* No need to know the URI for resources in advance. You can painlessly give them a proper name *at the end* of the workflow *based on its properties*.
 
 
 While technically Beast essentially provides utilities for chaining functions and streams, a great share of Beast's contribution lies in its the conceptual considerations.
@@ -17,8 +17,8 @@ While technically Beast essentially provides utilities for chaining functions an
 
 ## Examples
 
-* (Performance Measurement)[beast-examples/src/main/java/org/aksw/beast/examples/MainQueryPerformance.java]
-* (KFoldCrossValidation)[beast-examples/src/main/java/org/aksw/beast/examples/MainKFoldCrossValidation.java]
+* [Performance Measurement](beast-examples/src/main/java/org/aksw/beast/examples/MainQueryPerformance.java)
+* [KFoldCrossValidation](beast-examples/src/main/java/org/aksw/beast/examples/MainKFoldCrossValidation.java)
 
 
 ## Dependencies
