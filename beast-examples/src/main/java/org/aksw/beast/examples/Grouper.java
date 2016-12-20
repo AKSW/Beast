@@ -38,7 +38,11 @@ import com.codepoetics.protonpack.StreamUtils;
 public class Grouper<I extends Resource, O extends Resource>
 	implements Function<Stream<I>, Stream<O>>
 {
-
+	/**
+	 * Create a grouper which directly returns enhanced resources.
+	 *
+	 * @return
+	 */
 	public static <X extends Resource> Grouper<X, ResourceEnh> enh() {
 		return new Grouper<X, ResourceEnh>(Grouper::createGroupResource);
 	}
@@ -94,7 +98,16 @@ public class Grouper<I extends Resource, O extends Resource>
 		return this;
 	}
 
-	public Grouper<I, O> onMember(BiConsumer<O, I> cb) {
+	/**
+	 * Peek is called whenever a member resource's corresponding group
+	 * has been identified.
+	 * At this time, the group resource already has its key attributes associated,
+	 * but aggregation has not been performed yet.
+	 *
+	 * @param cb
+	 * @return
+	 */
+	public Grouper<I, O> peek(BiConsumer<O, I> cb) {
 		callback = callback == null ? cb : callback.andThen(cb);
 
 		return this;

@@ -41,7 +41,7 @@ public class Multithreaded {
 		Random rand = new Random();
 		BiConsumer<Resource, Query> queryAnalyzer = (observationRes, query) -> {
 			logger.debug("Faking query execution: " + observationRes + " with " + query);
-			PerformanceAnalyzer.analyze(observationRes, () -> Thread.sleep(rand.nextInt(100)));
+			PerformanceAnalyzer.analyze(observationRes, () -> Thread.sleep(rand.nextInt(1000)));
 		};
 
 		RdfStream<Resource, ResourceEnh> workflowTemplate =
@@ -56,15 +56,21 @@ public class Multithreaded {
 					.map(r -> r.rename("http://ex.org/thread{0}-run{1}-query{2}", IV.thread, IV.run, IV.job)));
 
 		List<Resource> observations = WorkflowExecutor.join(workflowGen)
+			//.peek(r -> RDFDataMgr.write(System.out, r.getModel(), RDFFormat.TURTLE_BLOCKS))
 			.collect(Collectors.toList());
-			//.forEach(r -> RDFDataMgr.write(System.out, r.getModel(), RDFFormat.TURTLE_BLOCKS));
 
 
 		Grouper.enh()
-			.on(IV.run)
 			.on(IguanaVocab.workload)
+			.on(IV.job)
+
+//			These lines would copy the triples of each member to that of the group, and linke the group back to the members
+//			.peek((group, member) -> group.getModel().add(member.getModel()))
+//			.peek((group, member) -> group.addProperty(RDFS.seeAlso, member.inModel(group.getModel())))
+
 			.agg(IV.experiment, OWLTIME.numericDuration, AggAvg.class)
 			.apply(observations.stream())
+		.map(g -> g.rename("http://ex.org/avg/query-{0}", IV.job))
 		.forEach(r -> RDFDataMgr.write(System.out, r.getModel(), RDFFormat.TURTLE_BLOCKS));
 
 	}

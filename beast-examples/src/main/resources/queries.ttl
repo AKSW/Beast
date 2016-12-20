@@ -5,9 +5,9 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 
-q:q1a
-  lsq:text "SELECT * { ?s ?p ?o } LIMIT 10" ;
-  .
+q:q1a lsq:text "SELECT * { ?s ?p ?o } LIMIT 10" .
+
+q:q2a lsq:text "SELECT * { ?s a ?o } LIMIT 10" .
 
 t:t1a
   a qc:ContainmentTest ;
