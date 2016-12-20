@@ -65,46 +65,40 @@ public class MainQueryPerformance {
 				int warumUpRuns,
 				int evalRuns)
 	{
-
-//		Function<Supplier<Stream<Resource>>, Supplier<Stream<Resource>>> xxx = seq(
-//				repeat(5, IV.run, 1).peek(r -> r.addLiteral(IV.warmup, true))),
-//				repeat(5, IV.run, 1)
-//			);
-
 		return RdfStream.startWithCopy()
 
-		// Parse the work load resource's query and attach it as a trait
-		.peek(workloadRes -> workloadRes.as(ResourceEnh.class)
-				.addTrait(QueryFactory.create(workloadRes.getProperty(LSQ.text).getString())))
+			// Parse the work load resource's query and attach it as a trait
+			.peek(workloadRes -> workloadRes.as(ResourceEnh.class)
+					.addTrait(QueryFactory.create(workloadRes.getProperty(LSQ.text).getString())))
 
-		// Create a blank observation resource (we will give it a proper IRI later)
-		// and link it back to the workload resource
-		.map(workloadRes ->
-				// Create the blank observation resource
-				workloadRes.getModel().createResource().as(ResourceEnh.class)
-				// Copy the query object attached to the workload resource over to this observation resource
-				.copyTraitsFrom(workloadRes)
-				// Add some properties to the observation
-				.addProperty(RDF.type, QB.Observation)
-				.addProperty(IguanaVocab.workload, workloadRes)
-				.as(ResourceEnh.class))
+			// Create a blank observation resource (we will give it a proper IRI later)
+			// and link it back to the workload resource
+			.map(workloadRes ->
+					// Create the blank observation resource
+					workloadRes.getModel().createResource().as(ResourceEnh.class)
+					// Copy the query object attached to the workload resource over to this observation resource
+					.copyTraitsFrom(workloadRes)
+					// Add some properties to the observation
+					.addProperty(RDF.type, QB.Observation)
+					.addProperty(IguanaVocab.workload, workloadRes)
+					.as(ResourceEnh.class))
 
-		// Measure performance of executing the query
-		.peek(observationRes -> queryExecutor.accept(observationRes, observationRes.getTrait(Query.class).get()))
-		//.map(x -> (Resource)x))
-		.seq(
-			// Warm up run - the resources are processed, but filtered out
-			RdfStream.<ResourceEnh>start().repeat(warumUpRuns, IV.run, 1)
-				.peek(r -> r.addLiteral(IV.warmup, true))
-				.filter(r -> false),
-			// Actual evaluation
-			RdfStream.<ResourceEnh>start().repeat(evalRuns, IV.run, 1).peek(r -> r.addLiteral(IV.warmup, false))
-		)
+			// Measure performance of executing the query
+			.peek(observationRes -> queryExecutor.accept(observationRes, observationRes.getTrait(Query.class).get()))
+			//.map(x -> (Resource)x))
+			.seq(
+				// Warm up run - the resources are processed, but filtered out
+				RdfStream.<ResourceEnh>start().repeat(warumUpRuns, IV.run, 1)
+					.peek(r -> r.addLiteral(IV.warmup, true))
+					.filter(r -> false),
+				// Actual evaluation
+				RdfStream.<ResourceEnh>start().repeat(evalRuns, IV.run, 1).peek(r -> r.addLiteral(IV.warmup, false))
+			)
 
-		// Give the observation resource a proper name
-		.map(r -> r.rename(observationIriPattern, r.getProperty(IguanaVocab.workload).getResource().getLocalName(), IV.run))
+			// Give the observation resource a proper name
+			.map(r -> r.rename(observationIriPattern, r.getProperty(IguanaVocab.workload).getResource().getLocalName(), IV.run))
 
-		;
+			;
 	}
 
 }

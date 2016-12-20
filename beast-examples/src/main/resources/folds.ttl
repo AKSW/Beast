@@ -15,8 +15,8 @@ ex:data1
   	"c"
   ) ;
   ex:negative (
-  	"d"
-  	"e"
+  	"x"
+  	"y"
   ) ;
   .
 

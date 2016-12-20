@@ -78,17 +78,17 @@ public class MainKFoldCrossValidation {
 			Property negative,
 			Function<RDFNode, T> itemParser) {
 		return (r) -> {
-			logger.info("Fold parser invoked");
 
 			List<T> ps = r.getProperty(positive).getObject().as(RDFList.class).iterator().mapWith(itemParser).toList();
 			List<T> ns = r.getProperty(negative).getObject().as(RDFList.class).iterator().mapWith(itemParser).toList();
-			//Iterable<T> it = Iterables.concat(ps, ns);
-			List<T> tmp = new ArrayList<T>();
-			tmp.addAll(ps);
-			tmp.addAll(ns);
-			Collections.shuffle(tmp);
 
-			List<Fold<T>> result = Fold.createFolds(tmp, n);
+			Collections.shuffle(ps);
+			Collections.shuffle(ns);
+			logger.info("Fold parser invoked - shuffled examples:");
+			logger.info("Positives: " + ps);
+			logger.info("Negatives: " + ns);
+
+			List<Fold<T>> result = Fold.createFolds(ps, ns, n);
 			return result;
 		};
 	}
