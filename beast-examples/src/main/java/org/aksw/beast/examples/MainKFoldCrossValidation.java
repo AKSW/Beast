@@ -35,13 +35,13 @@ public class MainKFoldCrossValidation {
 		List<Resource> workloads = m.listSubjectsWithProperty(RDF.type, EX.Sample).toList();
 
 		Function<Resource, List<Fold<String>>> foldParser =
-				configureFoldParser(5, EX.positive, EX.negative, (rdfNode) -> rdfNode.toString());
+				configureFoldParser(3, EX.positive, EX.negative, (rdfNode) -> rdfNode.toString());
 
-		RdfStream.startWithCopy()
+		RdfStream.start()
 			.flatMap(workloadRes ->
 					(Stream<ResourceEnh>)StreamUtils.zipWithIndex(foldParser.apply(workloadRes).stream())
 					.map(indexed ->
-						(ResourceEnh)workloadRes.getModel().createResource().as(ResourceEnh.class)
+						ResourceEnh.copyClosure(workloadRes).getModel().createResource().as(ResourceEnh.class)
 						.addTrait(indexed.getValue())
 						.addProperty(RDF.type, QB.Observation)
 						.addLiteral(IV.phase, indexed.getIndex())
@@ -51,7 +51,7 @@ public class MainKFoldCrossValidation {
 						+ phaseRes.getProperty(IV.phase).getInt() + ": "
 						+ phaseRes.getTrait(Fold.class).get()))
 
-			.repeat(5, IV.run, 1)
+			.repeat(2, IV.run, 1)
 			.map(phaseRes -> phaseRes.rename("http://example.org/observation/run{0}-fold{1}", IV.run, IV.phase))
 			.apply(() -> workloads.stream()).get()
 			.forEach(phaseRes -> RDFDataMgr.write(System.out, phaseRes.getModel(), RDFFormat.TURTLE_BLOCKS))
