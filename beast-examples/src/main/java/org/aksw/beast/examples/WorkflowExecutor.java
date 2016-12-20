@@ -1,6 +1,5 @@
 package org.aksw.beast.examples;
 
-import java.io.OutputStream;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
@@ -11,15 +10,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
-import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.riot.RDFDataMgr;
-import org.apache.jena.riot.RDFFormat;
 
 import com.google.common.collect.AbstractIterator;
 
@@ -40,7 +33,8 @@ public class WorkflowExecutor {
 
 		Thread myThread = Thread.currentThread();
 
-		Future<?> future = Executors.newSingleThreadExecutor().submit(() -> {
+		ExecutorService completionChecker = Executors.newSingleThreadExecutor();
+		Future<?> future = completionChecker.submit(() -> {
 			while(!Thread.interrupted() && !streamFutures.isEmpty()) {
 				try {
 					Future<?> f = cs.take();
@@ -50,25 +44,30 @@ public class WorkflowExecutor {
 				}
 			}
 
-			System.out.println("ALL TASKS DONE");
-			// Interrupt waiting
+			// Interrupt possible waiting on the queue
 			myThread.interrupt();
 		});
 
+		// We are done with thread creations so we can shutdown the executorServices
 		es.shutdown();
+		completionChecker.shutdown();
+
+
+		Runnable cancelAction = () -> {
+			System.out.println("CLOSING");
+			streamFutures.stream().forEach(f -> f.cancel(true));
+			future.cancel(true);
+		};
 
 		Iterator<T> it = new AbstractIterator<T>() {
 			@Override
 			protected T computeNext() {
-				System.out.println("MOO: " + Thread.getAllStackTraces().keySet());
 				T result;
 				if(streamFutures.isEmpty() || Thread.interrupted()) {
 					result = endOfData();
 				} else {
 					try {
-						System.out.println("WAITING FOR QUEUE - " + Thread.currentThread());
 						result = queue.take();
-						System.out.println("GOT ITEM FROM QUEUE - " + Thread.currentThread());
 					} catch (InterruptedException e) {
 						result = endOfData();
 						Thread.currentThread().interrupt();
@@ -83,10 +82,9 @@ public class WorkflowExecutor {
 
 		Stream<T> result = StreamSupport.stream(tmp.spliterator(), false);
 
-		// Cancel all tasks
-		result.onClose(() -> streamFutures.stream().forEach(f -> f.cancel(true)));
-		result.onClose(() -> future.cancel(true));
-		result.onClose(() -> System.out.println("STREAM CLOSED"));
+		// Note: If we consume the stream, we are in a clean state as all threads have terminated
+		result.onClose(cancelAction);
+
 		return result;
 	}
 }

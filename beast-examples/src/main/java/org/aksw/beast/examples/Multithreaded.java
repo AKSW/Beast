@@ -24,10 +24,9 @@ public class Multithreaded {
 	private static final Logger logger = LoggerFactory.getLogger(Multithreaded.class);
 
 	public static void main(String[] args) throws Exception {
-		System.out.println("I AM " + Thread.currentThread());
 
 		// Number of workflows to generate
-		int n = 1;
+		int n = 10;
 
 		// Set up workloads and workflows
 
@@ -38,11 +37,11 @@ public class Multithreaded {
 		Random rand = new Random();
 		BiConsumer<Resource, Query> queryAnalyzer = (observationRes, query) -> {
 			logger.debug("Faking query execution: " + observationRes + " with " + query);
-			PerformanceAnalyzer.analyze(observationRes, () -> Thread.sleep(rand.nextInt(1000)));
+			PerformanceAnalyzer.analyze(observationRes, () -> Thread.sleep(rand.nextInt(100)));
 		};
 
 		RdfStream<Resource, ResourceEnh> workflowTemplate =
-				MainQueryPerformance.createQueryPerformanceEvaluationWorkflow(queryAnalyzer, 0, 1);
+				MainQueryPerformance.createQueryPerformanceEvaluationWorkflow(queryAnalyzer, 10, 100);
 
 		// Create a stream where each element is an instanciation of the workflowTemplate with our workload
 		// Further, attach an identifier for the thread and craft the final IRI
@@ -53,7 +52,9 @@ public class Multithreaded {
 					.map(r -> r.rename("http://ex.org/thread{0}-run{1}-query{2}", IV.thread, IV.run, IV.job)));
 
 		Stream<Resource> joined = WorkflowExecutor.join(workflowGen);
-		joined.forEach(r -> RDFDataMgr.write(System.out, r.getModel(), RDFFormat.TURTLE_BLOCKS));
+		joined.
+			forEach(r -> RDFDataMgr.write(System.out, r.getModel(), RDFFormat.TURTLE_BLOCKS));
+
 	}
 
 }
