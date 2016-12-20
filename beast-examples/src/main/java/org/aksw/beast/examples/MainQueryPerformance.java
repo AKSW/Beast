@@ -2,9 +2,6 @@ package org.aksw.beast.examples;
 
 import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 import org.aksw.iguana.vocab.IguanaVocab;
 import org.aksw.jena_sparql_api.core.FluentQueryExecutionFactory;
@@ -22,6 +19,7 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.vocabulary.RDF;
+import org.apache.jena.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +28,7 @@ public class MainQueryPerformance {
 	private static final Logger logger = LoggerFactory.getLogger(MainKFoldCrossValidation.class);
 
 	public static void main(String[] args) {
+
 
 		QueryExecutionFactory qef = FluentQueryExecutionFactory
 				.http("http://dbpedia.org/sparql", "http://dbpedia.org")
@@ -48,7 +47,8 @@ public class MainQueryPerformance {
 
 		// Build the workflow template
 		createQueryPerformanceEvaluationWorkflow(
-				queryAnalyzer, "http://example.org/observation/{0}-{1}", 2, 5)
+				queryAnalyzer, 2, 5)
+		.map(observationRes -> observationRes.rename("http://example.org/observation/{0}-{1}", IV.run, IV.job))
 		// instanciate it for our  data
 		.apply(() -> workloads.stream()).get()
 		// write out every observation resource
@@ -58,10 +58,9 @@ public class MainQueryPerformance {
 	}
 
 
-	public static Function<Supplier<Stream<Resource>>, Supplier<Stream<Resource>>>
+	public static RdfStream<Resource, ResourceEnh>
 	createQueryPerformanceEvaluationWorkflow(
 				BiConsumer<Resource, Query> queryExecutor,
-				String observationIriPattern,
 				int warmUpRuns,
 				int evalRuns)
 	{
@@ -96,8 +95,7 @@ public class MainQueryPerformance {
 			)
 
 			// Give the observation resource a proper name
-			.map(r -> r.rename(observationIriPattern, r.getProperty(IguanaVocab.workload).getResource().getLocalName(), IV.run))
-
+			.peek(r -> r.addLiteral(IV.job, r.getProperty(IguanaVocab.workload).getResource().getLocalName()))
 			;
 	}
 

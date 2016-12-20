@@ -21,7 +21,7 @@ Model m = ModelFactoryEnh.createModel();
 m.createResource().as(ResourceEnh.class)
     .addTrait(myObj.getClass(), myObj);
     // Short-hand of above version
-    .addTrait(myObj)
+    .addTrait(myObj);
 ```
 * RdfStream API: Enables construction of RDF Resource based workflows using the usual streaming methods, such as *map*, *flatMap*, *peek*, and additional ones such as *repeat*.
 * Analysis: Compute new resources representing observations of aggregated values such as averages and standard deviations.
