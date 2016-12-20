@@ -31,7 +31,7 @@ m.createResource().as(ResourceEnh.class)
 RdfStream
     .startWithCopy()
     .peek(workloadRes -> workloadRes.as(ResourceEnh.class)
-    .addTrait(QueryFactory.create(workloadRes.getProperty(LSQ.text).getString())))
+        .addTrait(QueryFactory.create(workloadRes.getProperty(LSQ.text).getString())))
     .map(workloadRes ->
         // Create the blank observation resource
         workloadRes.getModel().createResource().as(ResourceEnh.class)
