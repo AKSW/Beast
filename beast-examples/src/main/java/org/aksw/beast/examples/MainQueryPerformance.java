@@ -62,7 +62,7 @@ public class MainQueryPerformance {
 	createQueryPerformanceEvaluationWorkflow(
 				BiConsumer<Resource, Query> queryExecutor,
 				String observationIriPattern,
-				int warumUpRuns,
+				int warmUpRuns,
 				int evalRuns)
 	{
 		return RdfStream.startWithCopy()
@@ -88,7 +88,7 @@ public class MainQueryPerformance {
 			//.map(x -> (Resource)x))
 			.seq(
 				// Warm up run - the resources are processed, but filtered out
-				RdfStream.<ResourceEnh>start().repeat(warumUpRuns, IV.run, 1)
+				RdfStream.<ResourceEnh>start().repeat(warmUpRuns, IV.run, 1)
 					.peek(r -> r.addLiteral(IV.warmup, true))
 					.filter(r -> false),
 				// Actual evaluation
