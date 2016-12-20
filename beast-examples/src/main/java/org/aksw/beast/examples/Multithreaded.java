@@ -2,14 +2,8 @@ package org.aksw.beast.examples;
 
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
-import java.util.function.Supplier;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.aksw.jena_sparql_api.rdf_stream.core.RdfStream;
@@ -30,10 +24,10 @@ public class Multithreaded {
 	private static final Logger logger = LoggerFactory.getLogger(Multithreaded.class);
 
 	public static void main(String[] args) throws Exception {
+		System.out.println("I AM " + Thread.currentThread());
 
-		// Parallel execution with n threads
-		int n = 4;
-
+		// Number of workflows to generate
+		int n = 1;
 
 		// Set up workloads and workflows
 
@@ -48,44 +42,18 @@ public class Multithreaded {
 		};
 
 		RdfStream<Resource, ResourceEnh> workflowTemplate =
-				MainQueryPerformance.createQueryPerformanceEvaluationWorkflow(queryAnalyzer, 1, 10);
+				MainQueryPerformance.createQueryPerformanceEvaluationWorkflow(queryAnalyzer, 0, 1);
 
-		// Workflow bound to a given workload
-		Supplier<Stream<ResourceEnh>> boundWorkflow = workflowTemplate.apply(() -> workloads.stream());
+		// Create a stream where each element is an instanciation of the workflowTemplate with our workload
+		// Further, attach an identifier for the thread and craft the final IRI
+		Stream<Stream<Resource>> workflowGen =
+				IntStream.range(0, n).mapToObj(i ->
+					workflowTemplate.apply(() -> workloads.stream()).get()
+					.peek(r -> r.addLiteral(IV.thread, i + 1))
+					.map(r -> r.rename("http://ex.org/thread{0}-run{1}-query{2}", IV.thread, IV.run, IV.job)));
 
-
-
-
-		// Set up for multithreading
-
-		BlockingQueue<Resource> queue = new LinkedBlockingQueue<>();
-
-		Runnable writerTask = () -> {
-			try {
-				while(!(Thread.currentThread().isInterrupted())) {
-					Resource r = queue.take();
-					RDFDataMgr.write(System.out, r.getModel(), RDFFormat.TURTLE_BLOCKS);
-				}
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-			}
-		};
-		Future<?> writerThreadFuture = Executors.newSingleThreadExecutor().submit(writerTask);
-
-		ExecutorService es = Executors.newCachedThreadPool();
-		for(int i = 0; i < n; ++i) {
-			final int j = i;
-			Stream<ResourceEnh> workflow = boundWorkflow.get();
-
-			// Each concurrently running workflow puts its result into the queue
-			es.submit(() -> workflow
-					.map(r -> r.rename("http://ex.org/thread{0}-run{1}-query{2}", j, IV.run, IV.job))
-					.forEach(queue::add));
-		}
-
-		es.shutdown();
-		es.awaitTermination(60, TimeUnit.SECONDS);
-
-		writerThreadFuture.cancel(true);
+		Stream<Resource> joined = WorkflowExecutor.join(workflowGen);
+		joined.forEach(r -> RDFDataMgr.write(System.out, r.getModel(), RDFFormat.TURTLE_BLOCKS));
 	}
+
 }
