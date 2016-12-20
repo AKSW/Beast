@@ -51,9 +51,8 @@ public class Multithreaded {
 					.peek(r -> r.addLiteral(IV.thread, i + 1))
 					.map(r -> r.rename("http://ex.org/thread{0}-run{1}-query{2}", IV.thread, IV.run, IV.job)));
 
-		Stream<Resource> joined = WorkflowExecutor.join(workflowGen);
-		joined.
-			forEach(r -> RDFDataMgr.write(System.out, r.getModel(), RDFFormat.TURTLE_BLOCKS));
+		WorkflowExecutor.join(workflowGen)
+			.forEach(r -> RDFDataMgr.write(System.out, r.getModel(), RDFFormat.TURTLE_BLOCKS));
 
 	}
 
