@@ -26,7 +26,7 @@ public class Multithreaded {
 	public static void main(String[] args) throws Exception {
 
 		// Number of workflows to generate
-		int n = 10;
+		int n = 3;
 
 		// Set up workloads and workflows
 
@@ -41,7 +41,7 @@ public class Multithreaded {
 		};
 
 		RdfStream<Resource, ResourceEnh> workflowTemplate =
-				MainQueryPerformance.createQueryPerformanceEvaluationWorkflow(queryAnalyzer, 10, 100);
+				MainQueryPerformance.createQueryPerformanceEvaluationWorkflow(queryAnalyzer, 2, 3);
 
 		// Create a stream where each element is an instanciation of the workflowTemplate with our workload
 		// Further, attach an identifier for the thread and craft the final IRI
