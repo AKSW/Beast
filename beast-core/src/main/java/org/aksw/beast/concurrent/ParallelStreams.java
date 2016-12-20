@@ -1,4 +1,4 @@
-package org.aksw.beast.examples;
+package org.aksw.beast.concurrent;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -16,7 +16,7 @@ import java.util.stream.StreamSupport;
 
 import com.google.common.collect.AbstractIterator;
 
-public class WorkflowExecutor {
+public class ParallelStreams {
 
 	/**
 	 * Returns a new stream based on executing all streams in the given stream in parallel, adds

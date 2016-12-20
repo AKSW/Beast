@@ -1,4 +1,4 @@
-package org.aksw.beast.examples;
+package org.aksw.beast.vocabs;
 
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
