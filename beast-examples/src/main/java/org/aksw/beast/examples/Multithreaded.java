@@ -70,7 +70,7 @@ public class Multithreaded {
 				Thread.currentThread().interrupt();
 			}
 		};
-		Future<?> writeThreadFuture = Executors.newSingleThreadExecutor().submit(writerTask);
+		Future<?> writerThreadFuture = Executors.newSingleThreadExecutor().submit(writerTask);
 
 		ExecutorService es = Executors.newCachedThreadPool();
 		for(int i = 0; i < n; ++i) {
@@ -86,6 +86,6 @@ public class Multithreaded {
 		es.shutdown();
 		es.awaitTermination(60, TimeUnit.SECONDS);
 
-		writeThreadFuture.cancel(true);
+		writerThreadFuture.cancel(true);
 	}
 }
