@@ -1,10 +1,5 @@
 package org.aksw.beast.examples;
 
-import static org.aksw.jena_sparql_api.rdf_stream.core.RdfStream.flatMap;
-import static org.aksw.jena_sparql_api.rdf_stream.core.RdfStream.map;
-import static org.aksw.jena_sparql_api.rdf_stream.core.RdfStream.peek;
-import static org.aksw.jena_sparql_api.rdf_stream.core.RdfStream.repeat;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -42,18 +37,22 @@ public class MainKFoldCrossValidation {
 		Function<Resource, List<Fold<String>>> foldParser =
 				configureFoldParser(5, EX.positive, EX.negative, (rdfNode) -> rdfNode.toString());
 
-		RdfStream.start()
-			.andThen(flatMap(workloadRes ->
+		RdfStream.startWithCopy()
+			.flatMap(workloadRes ->
 					(Stream<ResourceEnh>)StreamUtils.zipWithIndex(foldParser.apply(workloadRes).stream())
 					.map(indexed ->
 						(ResourceEnh)workloadRes.getModel().createResource().as(ResourceEnh.class)
 						.addTrait(indexed.getValue())
 						.addProperty(RDF.type, QB.Observation)
 						.addLiteral(IV.phase, indexed.getIndex())
-						.as(ResourceEnh.class))))
-			.andThen(peek(phaseRes -> logger.info("Executing phase: " + " - " + phaseRes.getProperty(IV.phase).getInt() + ": " + phaseRes.getTrait(Fold.class).get())))
-			.andThen(repeat(5, IV.run, 1))
-			.andThen(map(phaseRes -> phaseRes.rename("http://example.org/observation/run{0}-fold{1}", IV.run, IV.phase)))
+						.as(ResourceEnh.class)))
+
+			.peek(phaseRes -> logger.info("Executing phase: "
+						+ phaseRes.getProperty(IV.phase).getInt() + ": "
+						+ phaseRes.getTrait(Fold.class).get()))
+
+			.repeat(5, IV.run, 1)
+			.map(phaseRes -> phaseRes.rename("http://example.org/observation/run{0}-fold{1}", IV.run, IV.phase))
 			.apply(() -> workloads.stream()).get()
 			.forEach(phaseRes -> RDFDataMgr.write(System.out, phaseRes.getModel(), RDFFormat.TURTLE_BLOCKS))
 		;

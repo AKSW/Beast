@@ -1,9 +1,5 @@
 package org.aksw.beast.examples;
 
-import static org.aksw.jena_sparql_api.rdf_stream.core.RdfStream.map;
-import static org.aksw.jena_sparql_api.rdf_stream.core.RdfStream.peek;
-import static org.aksw.jena_sparql_api.rdf_stream.core.RdfStream.repeat;
-
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -43,12 +39,19 @@ public class MainQueryPerformance {
 
 		List<Resource> workloads = m.listSubjectsWithProperty(LSQ.text).toList();
 
-		// Build the workflow
+		BiConsumer<Resource, Query> queryAnalyzer = (observationRes, query) -> {
+			logger.debug("Processing " + observationRes + " with " + query);
+			PerformanceAnalyzer.analyze(observationRes,
+				() -> ResultSetFormatter.consume(
+						qef.createQueryExecution(query).execSelect()));
+		};
+
+		// Build the workflow template
 		createQueryPerformanceEvaluationWorkflow(
-				(observationRes, query) -> PerformanceAnalyzer.analyze(observationRes,
-						() -> ResultSetFormatter.consume(qef.createQueryExecution(query).execSelect())),
-				"http://example.org/observation/{0}-{1}", 1, 1)
+				queryAnalyzer, "http://example.org/observation/{0}-{1}", 2, 5)
+		// instanciate it for our  data
 		.apply(() -> workloads.stream()).get()
+		// write out every observation resource
 		.forEach(observationRes -> RDFDataMgr.write(System.out, observationRes.getModel(), RDFFormat.TURTLE_BLOCKS));
 
 		logger.info("Done.");
@@ -63,15 +66,20 @@ public class MainQueryPerformance {
 				int evalRuns)
 	{
 
-		return RdfStream.start()
+//		Function<Supplier<Stream<Resource>>, Supplier<Stream<Resource>>> xxx = seq(
+//				repeat(5, IV.run, 1).peek(r -> r.addLiteral(IV.warmup, true))),
+//				repeat(5, IV.run, 1)
+//			);
+
+		return RdfStream.startWithCopy()
 
 		// Parse the work load resource's query and attach it as a trait
-		.andThen(peek(workloadRes -> workloadRes.as(ResourceEnh.class)
-				.addTrait(QueryFactory.create(workloadRes.getProperty(LSQ.text).getString()))))
+		.peek(workloadRes -> workloadRes.as(ResourceEnh.class)
+				.addTrait(QueryFactory.create(workloadRes.getProperty(LSQ.text).getString())))
 
 		// Create a blank observation resource (we will give it a proper IRI later)
 		// and link it back to the workload resource
-		.andThen(map(workloadRes ->
+		.map(workloadRes ->
 				// Create the blank observation resource
 				workloadRes.getModel().createResource().as(ResourceEnh.class)
 				// Copy the query object attached to the workload resource over to this observation resource
@@ -79,16 +87,22 @@ public class MainQueryPerformance {
 				// Add some properties to the observation
 				.addProperty(RDF.type, QB.Observation)
 				.addProperty(IguanaVocab.workload, workloadRes)
-				.as(ResourceEnh.class)))
+				.as(ResourceEnh.class))
 
 		// Measure performance of executing the query
-		.andThen(peek(observationRes -> queryExecutor.accept(observationRes, observationRes.getTrait(Query.class).get())))
-
-		// Repeat 5 times, use IV.run as a loop variable that starts with 1
-		.andThen(repeat(5, IV.run, 1))
+		.peek(observationRes -> queryExecutor.accept(observationRes, observationRes.getTrait(Query.class).get()))
+		//.map(x -> (Resource)x))
+		.seq(
+			// Warm up run - the resources are processed, but filtered out
+			RdfStream.<ResourceEnh>start().repeat(warumUpRuns, IV.run, 1)
+				.peek(r -> r.addLiteral(IV.warmup, true))
+				.filter(r -> false),
+			// Actual evaluation
+			RdfStream.<ResourceEnh>start().repeat(evalRuns, IV.run, 1).peek(r -> r.addLiteral(IV.warmup, false))
+		)
 
 		// Give the observation resource a proper name
-		.andThen(map(r -> r.rename(observationIriPattern, r.getProperty(IguanaVocab.workload).getResource().getLocalName(), IV.run)))
+		.map(r -> r.rename(observationIriPattern, r.getProperty(IguanaVocab.workload).getResource().getLocalName(), IV.run))
 
 		;
 	}
