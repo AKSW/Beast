@@ -107,8 +107,10 @@ public class Multithreaded {
             .apply(avgs.stream());
 
         JFreeChart chart = IguanaDatasetProcessors.createStatisticalBarChart(dataset);
-        ChartUtilities2.saveChartAsPDF(new File("/home/raven/tmp/beast.pdf"), chart, 1000, 500);
+        File outFile = File.createTempFile("beast-", ".pdf").getAbsoluteFile();
+        ChartUtilities2.saveChartAsPDF(outFile, chart, 1000, 500);
 
+        logger.info("Chart written to " + outFile.getAbsolutePath());
     }
 //
 //    public static Stream<Resource> avgAndStdDev(Stream<Resource> observations, Property valueProperty, List<Object> groupProperties) {
