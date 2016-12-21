@@ -48,6 +48,8 @@
         <module>beast-benchmark</module>
         <module>beast-viz-jfreechart</module>
 
+        <module>beast-bundle</module>
+
         <module>beast-examples</module>
     </modules>
 
@@ -89,6 +91,12 @@
             <dependency>
                 <groupId>org.aksw.beast</groupId>
                 <artifactId>beast-benchmark</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.aksw.beast</groupId>
+                <artifactId>beast-viz-jfreechart</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -157,6 +165,12 @@
                 <scope>test</scope>
             </dependency>
 
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.7</version>
+                <scope>test</scope>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>

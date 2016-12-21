@@ -25,6 +25,7 @@ import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.engine.binding.BindingHashMap;
 import org.apache.jena.sparql.expr.Expr;
+import org.apache.jena.sparql.expr.ExprVar;
 import org.apache.jena.sparql.expr.aggregate.Accumulator;
 import org.apache.jena.sparql.expr.aggregate.Aggregator;
 import org.apache.jena.sparql.util.ModelUtils;
@@ -149,7 +150,7 @@ public class RdfGroupBy<I extends Resource, O extends Resource>
             try {
                 Constructor<? extends Aggregator> x = aggClazz.getConstructor(Expr.class);
 
-                Aggregator a = x.newInstance(s);
+                Aggregator a = x.newInstance(new ExprVar(s));
 
                 Map<Var, Function<Node, Node>> mapper = new HashMap<>();
                 mapper.put(s, (node) -> node);
