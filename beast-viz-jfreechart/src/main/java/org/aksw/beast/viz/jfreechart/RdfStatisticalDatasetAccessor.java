@@ -25,7 +25,7 @@ public class RdfStatisticalDatasetAccessor
             .categoryLabelFrom(CV.categoryLabel)
             .seriesLabelFrom(CV.seriesLabel)
             .valueFrom(CV.value)
-            .stdDevFrom(CV.stdDev);
+            .stdDevFrom(CV.stDev);
 
         return result;
     }

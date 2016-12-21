@@ -25,6 +25,6 @@ public class CV {
     public static final Property seriesLabel = property("seriesLabel");
     public static final Property categoryLabel = property("categoryLabel");
 
-    public static final Property value = property("avg");
-    public static final Property stdDev = property("stdDev");
+    public static final Property value = property("value");
+    public static final Property stDev = property("stdDev");
 }

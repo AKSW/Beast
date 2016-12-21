@@ -116,7 +116,7 @@ public class RdfGroupBy<I extends Resource, O extends Resource>
         return result;
     }
 
-    public RdfGroupBy<I, O> agg(Property tgtProperty, Property srcProperty, Class<? extends org.apache.jena.sparql.expr.aggregate.Aggregator> aggClazz) {
+    public RdfGroupBy<I, O> agg(Property tgtProperty, Property srcProperty, Class<?> aggClazz) {
 
         agg(tgtProperty, (r) -> getObject(r, srcProperty), aggClazz);
 
@@ -132,7 +132,7 @@ public class RdfGroupBy<I extends Resource, O extends Resource>
      * @param aggClazz
      * @return
      */
-    public RdfGroupBy<I, O> agg(Property tgtProperty, Function<Resource, RDFNode> propertyAccessor, Class<? extends org.apache.jena.sparql.expr.aggregate.Aggregator> aggClazz) {
+    public RdfGroupBy<I, O> agg(Property tgtProperty, Function<Resource, RDFNode> propertyAccessor, Class<?> aggClazz) {
 
         Var s = Var.alloc("s");
 
@@ -147,21 +147,36 @@ public class RdfGroupBy<I extends Resource, O extends Resource>
         };
 
         try {
-            try {
-                Constructor<? extends Aggregator> x = aggClazz.getConstructor(Expr.class);
+            Supplier<Accumulator> accSupplier = null;
 
-                Aggregator a = x.newInstance(new ExprVar(s));
+            if(Accumulator.class.isAssignableFrom(aggClazz)) {
+                try {
+                    // Check for jena accumulator with ctor(Expr, boolean)
+                    Constructor<?> accCtor = aggClazz.getConstructor(Expr.class, Boolean.TYPE);
+                    accSupplier = () -> { try{
+                        return(Accumulator)accCtor.newInstance(new ExprVar(s), false); }
+                    catch(Exception e) { throw new RuntimeException(e); } };
 
-                Map<Var, Function<Node, Node>> mapper = new HashMap<>();
-                mapper.put(s, (node) -> node);
-
-                Supplier<Accumulator> agg = () -> a.createAccumulator();
-
-                keysToAgg.put(tgtProperty, new SimpleEntry<>(bindingAccessor, agg));
-
-            } catch(NoSuchMethodException e) {
-
+                } catch(NoSuchMethodException e) { }
             }
+
+            if(Aggregator.class.isAssignableFrom(aggClazz)) {
+                try {
+                    Constructor<?> aggCtor = aggClazz.getConstructor(Expr.class);
+                    Aggregator agg = (Aggregator)aggCtor.newInstance(new ExprVar(s));
+                    accSupplier = () -> agg.createAccumulator();
+                } catch(NoSuchMethodException e) { }
+            }
+
+            if(accSupplier == null) {
+                throw new RuntimeException("Could not create a factory for accumulators from " + aggClazz);
+            }
+
+            Map<Var, Function<Node, Node>> mapper = new HashMap<>();
+            mapper.put(s, (node) -> node);
+
+            keysToAgg.put(tgtProperty, new SimpleEntry<>(bindingAccessor, accSupplier));
+
         } catch(Exception e) {
             throw new RuntimeException(e);
         }

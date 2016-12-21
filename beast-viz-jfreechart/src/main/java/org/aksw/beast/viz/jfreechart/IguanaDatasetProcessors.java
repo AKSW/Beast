@@ -1,5 +1,17 @@
 package org.aksw.beast.viz.jfreechart;
 
+import java.awt.Font;
+
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.CategoryLabelPositions;
+import org.jfree.chart.axis.LogarithmicAxis;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.renderer.category.CategoryItemRenderer;
+import org.jfree.chart.renderer.category.StatisticalBarRenderer;
+import org.jfree.data.category.CategoryDataset;
+
+
 public class IguanaDatasetProcessors {
 //
 //    public static void main(String[] args) throws DocumentException, IOException {
@@ -255,29 +267,29 @@ public class IguanaDatasetProcessors {
 //    }
 //
 //
-//    public static JFreeChart createStatisticalBarChart(CategoryDataset dataset) {
-//        final CategoryAxis xAxis = new CategoryAxis("Type");
-//        xAxis.setLowerMargin(0.01d); // percentage of space before first bar
-//        xAxis.setUpperMargin(0.01d); // percentage of space after last bar
-//        xAxis.setCategoryMargin(0.3d); // percentage of space between
-//                                        // categories
-//        xAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
-//        final LogarithmicAxis yAxis = new LogarithmicAxis("Time (s)");//new NumberAxis("Value");
-//        yAxis.setAutoRange(true);
-//        //yAxis.setAutoRangeMinimumSize(/size);
-//        yAxis.setLowerBound(0.0001);
-//        yAxis.setMinorTickMarksVisible(true);
-//        yAxis.setAutoRangeIncludesZero(false);
-//        yAxis.setStrictValuesFlag(false);
-//
-//        // define the plot
-//        final CategoryItemRenderer renderer = new StatisticalBarRenderer();
-//        final CategoryPlot plot = new CategoryPlot(dataset, xAxis, yAxis, renderer);
-//
-//        final JFreeChart chart = new JFreeChart("Performance Comparison", new Font("Helvetica", Font.BOLD, 14),
-//                plot, true);
-//
-//        return chart;
-//    }
+    public static JFreeChart createStatisticalBarChart(CategoryDataset dataset) {
+        final CategoryAxis xAxis = new CategoryAxis("Type");
+        xAxis.setLowerMargin(0.01d); // percentage of space before first bar
+        xAxis.setUpperMargin(0.01d); // percentage of space after last bar
+        xAxis.setCategoryMargin(0.3d); // percentage of space between
+                                        // categories
+        xAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
+        final LogarithmicAxis yAxis = new LogarithmicAxis("Time (s)");//new NumberAxis("Value");
+        yAxis.setAutoRange(true);
+        //yAxis.setAutoRangeMinimumSize(/size);
+        yAxis.setLowerBound(0.0001);
+        yAxis.setMinorTickMarksVisible(true);
+        yAxis.setAutoRangeIncludesZero(false);
+        yAxis.setStrictValuesFlag(false);
+
+        // define the plot
+        final CategoryItemRenderer renderer = new StatisticalBarRenderer();
+        final CategoryPlot plot = new CategoryPlot(dataset, xAxis, yAxis, renderer);
+
+        final JFreeChart chart = new JFreeChart("Performance Comparison", new Font("Helvetica", Font.BOLD, 14),
+                plot, true);
+
+        return chart;
+    }
 
 }
