@@ -68,17 +68,9 @@ public class Multithreaded {
                     .map(r -> r.rename("http://ex.org/thread{0}-run{1}-query{2}", IV.thread, IV.run, IV.job)));
 
         List<Resource> observations = ParallelStreams.join(workflowGen)
-            //.peek(r -> RDFDataMgr.write(System.out, r.getModel(), RDFFormat.TURTLE_BLOCKS))
+            .peek(r -> RDFDataMgr.write(System.out, r.getModel(), RDFFormat.TURTLE_BLOCKS))
             .collect(Collectors.toList());
 
-
-//        avgAndStdDev(observations.stream(), OWLTIME.numericDuration, Arrays.asList(IguanaVocab.workload, IV.job))
-//                .forEach(r -> RDFDataMgr.write(System.out, r.getModel(), RDFFormat.TURTLE_BLOCKS));
-
-
-        // TODO How to run nested aggregation expressions?
-        // Well, evaluate inner expression first, and substitute the value for the rest...
-        // e.g. SUM(x - AVG(x))
 
         List<Resource> avgs =
         RdfGroupBy.enh()
@@ -112,6 +104,10 @@ public class Multithreaded {
 
         logger.info("Chart written to " + outFile.getAbsolutePath());
     }
+
+
+// TODO Probably we should provide static utility methods that make it easy to output RDF in the hacky chart vocabulary
+// In order to quickly see some chart
 //
 //    public static Stream<Resource> avgAndStdDev(Stream<Resource> observations, Property valueProperty, List<Object> groupProperties) {
 //        return RdfGroupBy.enh()
