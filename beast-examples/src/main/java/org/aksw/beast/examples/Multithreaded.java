@@ -1,6 +1,5 @@
 package org.aksw.beast.examples;
 
-import java.io.File;
 import java.util.List;
 import java.util.Random;
 import java.util.function.BiConsumer;
@@ -13,10 +12,7 @@ import org.aksw.beast.concurrent.ParallelStreams;
 import org.aksw.beast.enhanced.ResourceEnh;
 import org.aksw.beast.rdfstream.RdfGroupBy;
 import org.aksw.beast.rdfstream.RdfStream;
-import org.aksw.beast.viz.jfreechart.ChartUtilities2;
-import org.aksw.beast.viz.jfreechart.IguanaDatasetProcessors;
-import org.aksw.beast.viz.jfreechart.RdfStatisticalDatasetAccessor;
-import org.aksw.beast.viz.jfreechart.StatisticalCategoryDatasetBuilder;
+import org.aksw.beast.viz.xchart.XChartStatBarChartProcessor;
 import org.aksw.beast.vocabs.CV;
 import org.aksw.beast.vocabs.IV;
 import org.aksw.beast.vocabs.OWLTIME;
@@ -24,14 +20,17 @@ import org.aksw.iguana.vocab.IguanaVocab;
 import org.aksw.simba.lsq.vocab.LSQ;
 import org.apache.jena.query.Query;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.Property;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.sparql.expr.aggregate.AggAvg;
 import org.apache.jena.sparql.expr.aggregate.lib.AccStatStdDevPopulation;
-import org.jfree.chart.JFreeChart;
-import org.jfree.data.statistics.StatisticalCategoryDataset;
+import org.knowm.xchart.CategoryChart;
+import org.knowm.xchart.CategoryChartBuilder;
+import org.knowm.xchart.SwingWrapper;
+import org.knowm.xchart.style.Styler.LegendPosition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,18 +41,27 @@ public class Multithreaded {
     public static void main(String[] args) throws Exception {
 
         // Number of workflows to generate
-        int n = 3;
+        int n = 5;
 
         // Set up workloads and workflows
 
-        Model m = RDFDataMgr.loadModel("queries.ttl");
-        List<Resource> workloads = m.listSubjectsWithProperty(LSQ.text).toList();
+//        Model m = RDFDataMgr.loadModel("queries.ttl");
+//        List<Resource> workloads = m.listSubjectsWithProperty(LSQ.text).toList();
 
+        // TODO Exception in query parsing is swallowed
+        List<Resource> workloads = IntStream.range(0, 20)
+        		.mapToObj(i ->
+        			ModelFactory.createDefaultModel().createResource("http://ex.org/q" + i)
+        				.addProperty(LSQ.text, "SELECT * { ?s ?p ?o }"))
+        		.collect(Collectors.toList());
+
+        workloads.forEach(r -> r.getModel().write(System.out, "TURTLE"));
+//
         // Fake query execution
         Random rand = new Random();
         BiConsumer<Resource, Query> queryAnalyzer = (observationRes, query) -> {
             logger.debug("Faking query execution: " + observationRes + " with " + query);
-            BenchmarkTime.benchmark(observationRes, () -> Thread.sleep(rand.nextInt(100)));
+            BenchmarkTime.benchmark(observationRes, () -> Thread.sleep(rand.nextInt(50)));
         };
 
         RdfStream<Resource, ResourceEnh> workflowTemplate =
@@ -83,26 +91,41 @@ public class Multithreaded {
             .apply(observations.stream())
             .map(g -> g.rename("http://ex.org/avg/query-{0}", IV.job))
             .peek(g -> g
-                    .addProperty(CV.series, g.getProperty(IguanaVocab.workload).getObject())
-                    .addProperty(CV.category, "cat")
-                    .addProperty(CV.categoryLabel, "catlabel")
-                    .addProperty(CV.seriesLabel, g.getProperty(IV.job).getObject())
+                    .addProperty(CV.series, g.getModel().createResource("http://example.org/Default")) // g.getProperty(IV.job).getObject()
+                    .addProperty(CV.category, g.getProperty(IguanaVocab.workload).getObject())
+                    .addProperty(CV.categoryLabel, g.getProperty(CV.category).getResource().getLocalName())
+                    .addProperty(CV.seriesLabel,g.getProperty(CV.series).getResource().getLocalName())
              )
-
             .collect(Collectors.toList());
 
         avgs
             .forEach(r -> RDFDataMgr.write(System.out, r.getModel(), RDFFormat.TURTLE_BLOCKS));
 
-        StatisticalCategoryDataset dataset =
-        StatisticalCategoryDatasetBuilder.create(RdfStatisticalDatasetAccessor.create())
-            .apply(avgs.stream());
+//        StatisticalCategoryDataset dataset =
+//        StatisticalCategoryDatasetBuilder.create(RdfStatisticalDatasetAccessor.create())
+//            .apply(avgs.stream());
 
-        JFreeChart chart = IguanaDatasetProcessors.createStatisticalBarChart(dataset);
-        File outFile = File.createTempFile("beast-", ".pdf").getAbsoluteFile();
-        ChartUtilities2.saveChartAsPDF(outFile, chart, 1000, 500);
+//        File outFile = File.createTempFile("beast-", ".pdf").getAbsoluteFile();
+	    CategoryChart xChart = new CategoryChartBuilder()
+	    		.width(800)
+	    		.height(600)
+	    		.title("Score Histogram")
+	    		.xAxisTitle("Score")
+	    		.yAxisTitle("Number")
+	    		.build();
 
-        logger.info("Chart written to " + outFile.getAbsolutePath());
+	    xChart.getStyler().setLegendPosition(LegendPosition.InsideNW);
+	    //xChart.getStyler().setYAxisLogarithmic(true);
+	    //xChart.getStyler().setY
+
+	    XChartStatBarChartProcessor.addSeries(xChart, avgs);
+
+	    new SwingWrapper<CategoryChart>(xChart).displayChart();
+
+//        JFreeChart chart = IguanaDatasetProcessors.createStatisticalBarChart(dataset);
+//        ChartUtilities2.saveChartAsPDF(outFile, chart, 1000, 500);
+//
+//        logger.info("Chart written to " + outFile.getAbsolutePath());
     }
 
 

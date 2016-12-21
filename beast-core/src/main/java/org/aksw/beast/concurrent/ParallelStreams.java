@@ -71,7 +71,7 @@ public class ParallelStreams {
 			}
 
 			// Interrupt possible waiting on the queue
-			myThread.interrupt();
+			// (x) myThread.interrupt();
 		});
 
 		// We are done with thread creations so we can shutdown the executorServices
@@ -83,7 +83,7 @@ public class ParallelStreams {
 			streamFutures.stream().forEach(f -> f.cancel(true));
 			future.cancel(true);
 			queue.clear();
-			myThread.interrupt();
+			// (x) myThread.interrupt();
 		};
 
 		Iterator<T> it = new AbstractIterator<T>() {

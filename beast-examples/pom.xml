@@ -24,6 +24,11 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.aksw.beast</groupId>
+			<artifactId>beast-viz-xchart</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
 			<scope>runtime</scope>

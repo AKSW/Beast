@@ -102,6 +102,12 @@
 			</dependency>
 
 			<dependency>
+				<groupId>org.aksw.beast</groupId>
+				<artifactId>beast-viz-xchart</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
 				<groupId>org.apache.jena</groupId>
 				<artifactId>jena-arq</artifactId>
 				<version>${jena.version}</version>
