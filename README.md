@@ -1,6 +1,6 @@
 # BEAST - Benchmarking, Evaluation, and Analysis Stack
 
-Beast makes it easy to build RDF-in/RDF-out workflows using Java8 streams and Jena.
+Beast is a lightweight framework that makes it easy to build RDF-in/RDF-out workflows using Java8 streams and Jena.
 For instance, if you want to execute a set of tasks described in RDF, Beast easily lets you create workflows that execute them as often as desired and record 
 any measurements directly in  RDF using the vocabulary of your choice (such as DataCube).
 
@@ -79,10 +79,13 @@ Which generates output such as:
 
 Beast only aggregates features from other (lower-level) projects, among them:
 
-* aksw-commons
-* jena-sparql-api
+Core:
 * jena
 * guava
+
+Visualization (Optional):
+* JFreeChart
+* XChart (probably in the future)
 
 
 
