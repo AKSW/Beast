@@ -32,6 +32,16 @@ import org.apache.jena.sparql.util.ModelUtils;
 
 import com.codepoetics.protonpack.StreamUtils;
 
+/**
+ *
+ *
+ * TODO Add support for nested grouping, such as Collectors.groupingBy()
+ *
+ * @author raven
+ *
+ * @param <I>
+ * @param <O>
+ */
 public class RdfGroupBy<I extends Resource, O extends Resource>
     implements Function<Stream<I>, Stream<O>>
 {

@@ -31,19 +31,18 @@ import com.google.common.collect.MutableClassToInstanceMap;
  * {@code
  * Stream<Resource> stream
  *   .map(r -> r.as(EnhResource.class))
- *   .peek(r ->r.addTrait(QueryFactory.parse(r.getProperty(LSQ.text, ...)))
- *   .peek(r -> benchmarkQuery(r, r.getTrait(Query.class), service)
+ *   .peek(r ->r.addTag(QueryFactory.parse(r.getProperty(LSQ.text, ...)))
+ *   .peek(r -> benchmarkQuery(r, r.getTag(Query.class), service)
  *   .foreach(r.getModel().write(System.out, "TURTLE")))
  * }
  * </pre>
  *
- * TODO: Trait in this context is meant as a class-based attribute; there might be a better name out there
  *
- * r.addTrait("hello")
- * r.addTrait(Base.class, new Derived())
+ * r.addTag("hello")
+ * r.addTag(Base.class, new Derived())
  *
- * r.getTrait(String.class)
- * r.removeTrait(String.class)
+ * r.getTag(String.class)
+ * r.removeTag(String.class)
  *
  * Note: r.addTrait(o) is equivalent to r.addTrait(o.getClass(), o);
  *
@@ -62,13 +61,13 @@ public class ResourceEnh
     }
 
     @SuppressWarnings("deprecation")
-    public ResourceEnh copyTraitsFrom(Resource other) {
+    public ResourceEnh copyTagsFrom(Resource other) {
         if(other.canAs(ResourceEnh.class)) {
             Node tmp = other.asNode();
             MutableClassToInstanceMap<Object> srcMap = meta.get(tmp);
 
             if(srcMap != null) {
-                MutableClassToInstanceMap<Object> tgtMap = getOrCreateTraitMap();
+                MutableClassToInstanceMap<Object> tgtMap = getOrCreateTagMap();
                 tgtMap.putAll(srcMap);
             }
         }
@@ -76,7 +75,7 @@ public class ResourceEnh
         return this;
     }
 
-    public MutableClassToInstanceMap<Object> getOrCreateTraitMap() {
+    public MutableClassToInstanceMap<Object> getOrCreateTagMap() {
         MutableClassToInstanceMap<Object> map = meta.get(node);
         if(map == null) {
             map = MutableClassToInstanceMap.create();
@@ -86,23 +85,23 @@ public class ResourceEnh
         return map;
     }
 
-    public ResourceEnh addTrait(Object o) {
+    public ResourceEnh addTag(Object o) {
         Objects.requireNonNull(o);
 
-        addTrait(o.getClass(), o);
+        addTag(o.getClass(), o);
 
         return this;
     }
 
     @SuppressWarnings("deprecation")
-    public ResourceEnh addTrait(Class<?> clazz, Object o) {
-        MutableClassToInstanceMap<Object> map = getOrCreateTraitMap();
+    public ResourceEnh addTag(Class<?> clazz, Object o) {
+        MutableClassToInstanceMap<Object> map = getOrCreateTagMap();
         map.put(clazz, o);
 
         return this;
     }
 
-    public ResourceEnh removeTrait(Object clazz) {
+    public ResourceEnh removeTag(Object clazz) {
         MutableClassToInstanceMap<Object> map = meta.get(node);
         if(map != null) {
             map.remove(clazz);
@@ -115,13 +114,13 @@ public class ResourceEnh
         return this;
     }
 
-    public <T> Optional<T> getTrait(Class<T> clazz) {
+    public <T> Optional<T> getTag(Class<T> clazz) {
         MutableClassToInstanceMap<Object> map = meta.get(node);
         T tmp = map == null ? null : map.getInstance(clazz);
         return Optional.fromNullable(tmp);
     }
 
-    public ResourceEnh clearTraits() {
+    public ResourceEnh clearTag() {
         MutableClassToInstanceMap<Object> map = meta.get(node);
         if(map != null) {
             map.clear();

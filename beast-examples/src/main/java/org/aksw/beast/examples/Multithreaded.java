@@ -8,6 +8,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.aksw.beast.benchmark.performance.BenchmarkTime;
+import org.aksw.beast.benchmark.performance.PerformanceBenchmark;
 import org.aksw.beast.concurrent.ParallelStreams;
 import org.aksw.beast.enhanced.ResourceEnh;
 import org.aksw.beast.rdfstream.RdfGroupBy;
@@ -19,11 +20,10 @@ import org.aksw.beast.vocabs.OWLTIME;
 import org.aksw.iguana.vocab.IguanaVocab;
 import org.aksw.simba.lsq.vocab.LSQ;
 import org.apache.jena.query.Query;
-import org.apache.jena.rdf.model.Model;
+import org.apache.jena.query.QueryFactory;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
-import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.sparql.expr.aggregate.AggAvg;
@@ -69,7 +69,7 @@ public class Multithreaded {
         };
 
         RdfStream<Resource, ResourceEnh> workflowTemplate =
-                MainQueryPerformance.createQueryPerformanceEvaluationWorkflow(queryAnalyzer, 2, 3);
+                PerformanceBenchmark.createQueryPerformanceEvaluationWorkflow(queryAnalyzer, 2, 3);
 
         // Create a stream where each element is an instanciation of the workflowTemplate with our workload
         // Further, attach an identifier for the thread and craft the final IRI

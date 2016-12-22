@@ -1,10 +1,12 @@
 package org.aksw.beast.concurrent;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,49 +31,65 @@ public class ParallelStreams {
 	 * To remedy this issue, the returned stream has a .close() action attached which will
 	 * interrupt all running threads, but still more than limit items will be processed.
 	 *
+	 * The first exception encountered will be thrown.
+	 *
 	 * @param streams
 	 * @return
 	 */
 	public static <T> Stream<T> join(Stream<Stream<T>> streams) {
+		ExecutorService es = Executors.newCachedThreadPool();
+		Stream<T> result = join(streams, es);
+		return result;
+	}
+
+	public static <T> Stream<T> join(Stream<Stream<T>> streams, ExecutorService es) {
 		BlockingQueue<T> queue = new LinkedBlockingQueue<>();
 
-		ExecutorService es = Executors.newCachedThreadPool();
 		CompletionService<T> cs = new ExecutorCompletionService<T>(es);
 
 		// Each concurrently running workflow puts its result into the queue
-
-		// Submit all tasks
-//		Set<Future<?>> streamFutures = Collections.synchronizedSet(streams
-//			.map(stream ->
-//				cs.submit(() -> {
-//					Iterator<T> it = stream.iterator();
-//					while(it.hasNext() && !Thread.interrupted()) {
-//						T item = it.next();
-//						queue.add(item);
-//					}
-//				}, null))
-//			.collect(Collectors.toSet()));
-
-		Set<Future<?>> streamFutures = Collections.synchronizedSet(streams
+		Set<Future<?>> streamFutures = streams
 				.map(stream -> cs.submit(() -> stream.forEach(queue::add), null))
-				.collect(Collectors.toSet()));
+				.collect(Collectors.toSet());
 
+		// Keep a reference to the calling thread, so we may interrupt its wait on the queue
+		// in case of consumption of all streams or exception
+		Thread caller = Thread.currentThread();
+		Boolean[] isCallerWaitingForQueue = {false};
 
-		Thread myThread = Thread.currentThread();
-
+		// Create a thread to monitor consumption or exceptions of the streams
 		ExecutorService completionChecker = Executors.newSingleThreadExecutor();
 		Future<?> future = completionChecker.submit(() -> {
-			while(!Thread.interrupted() && !streamFutures.isEmpty()) {
-				try {
+			Throwable e = null;
+
+			try {
+				while(!Thread.interrupted() && !streamFutures.isEmpty()) {
 					Future<?> f = cs.take();
-					streamFutures.remove(f);
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
+
+					synchronized(streamFutures) {
+						streamFutures.remove(f);
+					}
+
+					// Check whether an exception occurred
+					f.get();
+				}
+			} catch (InterruptedException ex) {
+				Thread.currentThread().interrupt();
+			} catch(ExecutionException ex) {
+				e = ex.getCause();
+			}
+
+			es.shutdownNow();
+
+			synchronized (isCallerWaitingForQueue) {
+				if(isCallerWaitingForQueue[0]) {
+					caller.interrupt();
 				}
 			}
 
-			// Interrupt possible waiting on the queue
-			// (x) myThread.interrupt();
+			if(e != null) {
+				throw new RuntimeException(e);
+			}
 		});
 
 		// We are done with thread creations so we can shutdown the executorServices
@@ -80,10 +98,18 @@ public class ParallelStreams {
 
 
 		Runnable cancelAction = () -> {
-			streamFutures.stream().forEach(f -> f.cancel(true));
+			es.shutdownNow();
 			future.cancel(true);
 			queue.clear();
-			// (x) myThread.interrupt();
+
+			try {
+				future.get();
+			} catch(ExecutionException e) {
+				throw new RuntimeException(e.getCause());
+			} catch (InterruptedException e) {
+				// Should not happen
+				throw new RuntimeException(e);
+			}
 		};
 
 		Iterator<T> it = new AbstractIterator<T>() {
@@ -92,11 +118,19 @@ public class ParallelStreams {
 				T result;
 				if(streamFutures.isEmpty() || Thread.interrupted()) {
 					result = endOfData();
+					cancelAction.run();
 				} else {
 					try {
+						synchronized (isCallerWaitingForQueue) {
+							isCallerWaitingForQueue[0] = true;
+						}
 						result = queue.take();
+						synchronized (isCallerWaitingForQueue) {
+							isCallerWaitingForQueue[0] = false;
+						}
 					} catch (InterruptedException e) {
 						result = endOfData();
+						cancelAction.run();
 						Thread.currentThread().interrupt();
 					}
 				}
