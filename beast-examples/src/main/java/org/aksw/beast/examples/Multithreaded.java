@@ -59,8 +59,6 @@ public class Multithreaded {
                         .addProperty(LSQ.text, "SELECT * { ?s ?p ?o }"))
                 .collect(Collectors.toList());
 
-        workloads.forEach(r -> r.getModel().write(System.out, "TURTLE"));
-//
         // Fake query execution
         Random rand = new Random();
         BiConsumer<Resource, Query> queryAnalyzer = (observationRes, query) -> {
