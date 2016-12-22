@@ -22,6 +22,7 @@ import org.apache.jena.query.Query;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
@@ -48,12 +49,15 @@ public class Multithreaded {
 //        Model m = RDFDataMgr.loadModel("queries.ttl");
 //        List<Resource> workloads = m.listSubjectsWithProperty(LSQ.text).toList();
 
+        //String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+        Resource experiment = ResourceFactory.createResource();
+
         // TODO Exception in query parsing is swallowed
         List<Resource> workloads = IntStream.range(0, 20)
-        		.mapToObj(i ->
-        			ModelFactory.createDefaultModel().createResource("http://ex.org/q" + i)
-        				.addProperty(LSQ.text, "SELECT * { ?s ?p ?o }"))
-        		.collect(Collectors.toList());
+                .mapToObj(i ->
+                    ModelFactory.createDefaultModel().createResource("http://ex.org/q" + i)
+                        .addProperty(LSQ.text, "SELECT * { ?s ?p ?o }"))
+                .collect(Collectors.toList());
 
         workloads.forEach(r -> r.getModel().write(System.out, "TURTLE"));
 //
@@ -90,37 +94,43 @@ public class Multithreaded {
             //.agg(IV.phase, OWLTIME.numericDuration, AccStatStdDevSample.class)
             .apply(observations.stream())
             .map(g -> g.rename("http://ex.org/avg/query-{0}", IV.job))
-            .peek(g -> g
-                    .addProperty(CV.series, g.getModel().createResource("http://example.org/Default")) // g.getProperty(IV.job).getObject()
-                    .addProperty(CV.category, g.getProperty(IguanaVocab.workload).getObject())
-                    .addProperty(CV.categoryLabel, g.getProperty(CV.category).getResource().getLocalName())
-                    .addProperty(CV.seriesLabel,g.getProperty(CV.series).getResource().getLocalName())
-             )
             .collect(Collectors.toList());
 
+
+        // At this point we should write out all the observations.
+
+
+        // Chart specific post processing
+        avgs.forEach(g -> g
+                .addProperty(CV.series, g.getModel().createResource("http://example.org/Default")) // g.getProperty(IV.job).getObject()
+                .addProperty(CV.category, g.getProperty(IguanaVocab.workload).getObject())
+                .addProperty(CV.categoryLabel, g.getProperty(CV.category).getResource().getLocalName())
+                .addProperty(CV.seriesLabel,g.getProperty(CV.series).getResource().getLocalName())
+         );
+
         avgs
-            .forEach(r -> RDFDataMgr.write(System.out, r.getModel(), RDFFormat.TURTLE_BLOCKS));
+        .forEach(r -> RDFDataMgr.write(System.out, r.getModel(), RDFFormat.TURTLE_BLOCKS));
 
 //        StatisticalCategoryDataset dataset =
 //        StatisticalCategoryDatasetBuilder.create(RdfStatisticalDatasetAccessor.create())
 //            .apply(avgs.stream());
 
 //        File outFile = File.createTempFile("beast-", ".pdf").getAbsoluteFile();
-	    CategoryChart xChart = new CategoryChartBuilder()
-	    		.width(800)
-	    		.height(600)
-	    		.title("Score Histogram")
-	    		.xAxisTitle("Score")
-	    		.yAxisTitle("Number")
-	    		.build();
+        CategoryChart xChart = new CategoryChartBuilder()
+                .width(800)
+                .height(600)
+                .title("Score Histogram")
+                .xAxisTitle("Score")
+                .yAxisTitle("Number")
+                .build();
 
-	    xChart.getStyler().setLegendPosition(LegendPosition.InsideNW);
-	    //xChart.getStyler().setYAxisLogarithmic(true);
-	    //xChart.getStyler().setY
+        xChart.getStyler().setLegendPosition(LegendPosition.InsideNW);
+        //xChart.getStyler().setYAxisLogarithmic(true);
+        //xChart.getStyler().setY
 
-	    XChartStatBarChartProcessor.addSeries(xChart, avgs);
+        XChartStatBarChartProcessor.addSeries(xChart, avgs);
 
-	    new SwingWrapper<CategoryChart>(xChart).displayChart();
+        new SwingWrapper<CategoryChart>(xChart).displayChart();
 
 //        JFreeChart chart = IguanaDatasetProcessors.createStatisticalBarChart(dataset);
 //        ChartUtilities2.saveChartAsPDF(outFile, chart, 1000, 500);
