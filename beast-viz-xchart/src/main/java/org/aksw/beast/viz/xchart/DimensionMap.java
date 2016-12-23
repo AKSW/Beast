@@ -24,10 +24,10 @@ public class DimensionMap<K, V>
 	extends ForwardingMap<K, V>
 {
 	protected Map<K, V> delegate;
-	protected Function<Set<? super K>, List<K>> arranger;
+	protected Function<Set<? super K>, List<? extends K>> arranger;
 
 
-	public DimensionMap(Map<K, V> delegate, Function<Set<? super K>, List<K>> arranger) {
+	public DimensionMap(Map<K, V> delegate, Function<Set<? super K>, List<? extends K>> arranger) {
 		this.delegate = delegate;
 		this.arranger = arranger;
 	}
@@ -40,12 +40,16 @@ public class DimensionMap<K, V>
 	@Override
 	public Set<Entry<K, V>> entrySet() {
 		Set<K> keySet = delegate.keySet();
-		List<K> order = arranger.apply(keySet);
+		List<? extends K> order = arranger.apply(keySet);
 
 		Set<Entry<K, V>> result = order.stream()
-			.map(k -> new SimpleEntry<>(k, delegate.get(k)))
+			.map(k -> new SimpleEntry<K, V>(k, delegate.get(k)))
 			.collect(Collectors.toCollection(LinkedHashSet::new));
 
 		return result;
+	}
+
+	public static <K, V> Map<K, V> wrap(Map<K, V> delegate, Function<Set<? super K>, List<? extends K>> arranger) {
+		return new DimensionMap<>(delegate, arranger);
 	}
 }

@@ -9,6 +9,7 @@ package org.aksw.beast.compare;
  */
 
 import java.util.Comparator;
+import java.util.Objects;
 
 /**
  * Identifies sub-strings that correspond to integers and compares those parts
@@ -129,5 +130,13 @@ public class StringPrettyComparator implements Comparator<String> {
     public int compare(String a, String b) {
         int result = doCompare(a, b);
         return result;
+    }
+
+    public static int doCompare(Object x, Object y) {
+    	String a = Objects.toString(x);
+    	String b = Objects.toString(y);
+
+    	int result = doCompare(a, b);
+    	return result;
     }
 }

@@ -4,7 +4,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -20,6 +22,7 @@ import org.aksw.beast.rdfstream.RdfStream;
 import org.aksw.beast.viz.jfreechart.IguanaDatasetProcessors;
 import org.aksw.beast.viz.jfreechart.RdfStatisticalDatasetAccessor;
 import org.aksw.beast.viz.jfreechart.StatisticalCategoryDatasetBuilder;
+import org.aksw.beast.viz.xchart.DimensionArranger;
 import org.aksw.beast.viz.xchart.XChartStatBarChartProcessor;
 import org.aksw.beast.vocabs.CV;
 import org.aksw.beast.vocabs.IV;
@@ -28,6 +31,7 @@ import org.aksw.iguana.vocab.IguanaVocab;
 import org.aksw.simba.lsq.vocab.LSQ;
 import org.apache.jena.query.Query;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.riot.RDFDataMgr;
@@ -76,7 +80,7 @@ public class Multithreaded {
         Random rand = new Random();
         BiConsumer<Resource, Query> queryAnalyzer = (observationRes, query) -> {
             logger.debug("Faking query execution: " + observationRes + " with " + query);
-            BenchmarkTime.benchmark(observationRes, () -> Thread.sleep(rand.nextInt(500)));
+            BenchmarkTime.benchmark(observationRes, () -> Thread.sleep(rand.nextInt(50)));
         };
 
         RdfStream<Resource, ResourceEnh> workflowTemplate =
@@ -135,8 +139,16 @@ public class Multithreaded {
                 .build();
         //xChart.getStyler().setY
 
+        DimensionArranger<RDFNode> arr = new DimensionArranger<>();
+        arr.getPredefinedKeys().add(ResourceFactory.createResource("http://ex.org/q7"));
+        arr.getPredefinedKeys().add(ResourceFactory.createPlainLiteral("This"));
+        arr.getPredefinedKeys().add(ResourceFactory.createPlainLiteral("is"));
+        arr.getPredefinedKeys().add(ResourceFactory.createPlainLiteral("a"));
+        arr.getPredefinedKeys().add(ResourceFactory.createPlainLiteral("test"));
 
-        XChartStatBarChartProcessor.addSeries(xChart, avgs, null, null);
+
+        Function<Set<RDFNode>, List<RDFNode>> fnx = arr;
+        XChartStatBarChartProcessor.addSeries(xChart, avgs, null, null, null, fnx);
 
         xChart.getStyler().setLegendPosition(LegendPosition.InsideNW);
 
