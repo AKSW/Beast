@@ -24,5 +24,10 @@
 			<artifactId>xchart</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>de.erichseifert.vectorgraphics2d</groupId>
+			<artifactId>VectorGraphics2D</artifactId>
+		</dependency>
+
 	</dependencies>
 </project>

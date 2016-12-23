@@ -40,6 +40,8 @@ import org.jfree.data.statistics.StatisticalCategoryDataset;
 import org.knowm.xchart.CategoryChart;
 import org.knowm.xchart.CategoryChartBuilder;
 import org.knowm.xchart.SwingWrapper;
+import org.knowm.xchart.VectorGraphicsEncoder;
+import org.knowm.xchart.VectorGraphicsEncoder.VectorGraphicsFormat;
 import org.knowm.xchart.style.Styler.LegendPosition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -141,6 +143,8 @@ public class Multithreaded {
         xChart.getStyler().setYAxisMax(1.0);
         xChart.getStyler().setYAxisLogarithmic(true);
         xChart.getStyler().setYAxisTicksVisible(true);
+
+        VectorGraphicsEncoder.saveVectorGraphic(xChart, "/tmp/Sample_Chart", VectorGraphicsFormat.SVG);
 
         new SwingWrapper<CategoryChart>(xChart).displayChart();
 
