@@ -9,12 +9,17 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import javax.swing.JFrame;
+
 import org.aksw.beast.benchmark.performance.BenchmarkTime;
 import org.aksw.beast.benchmark.performance.PerformanceBenchmark;
 import org.aksw.beast.concurrent.ParallelStreams;
 import org.aksw.beast.enhanced.ResourceEnh;
 import org.aksw.beast.rdfstream.RdfGroupBy;
 import org.aksw.beast.rdfstream.RdfStream;
+import org.aksw.beast.viz.jfreechart.IguanaDatasetProcessors;
+import org.aksw.beast.viz.jfreechart.RdfStatisticalDatasetAccessor;
+import org.aksw.beast.viz.jfreechart.StatisticalCategoryDatasetBuilder;
 import org.aksw.beast.viz.xchart.XChartStatBarChartProcessor;
 import org.aksw.beast.vocabs.CV;
 import org.aksw.beast.vocabs.IV;
@@ -29,6 +34,9 @@ import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.sparql.expr.aggregate.AggAvg;
 import org.apache.jena.sparql.expr.aggregate.lib.AccStatStdDevPopulation;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.data.statistics.StatisticalCategoryDataset;
 import org.knowm.xchart.CategoryChart;
 import org.knowm.xchart.CategoryChartBuilder;
 import org.knowm.xchart.SwingWrapper;
@@ -52,7 +60,6 @@ public class Multithreaded {
 
         String jobExecBaseIri = "http://example.org/jobExec/";
         String timeStamp = new SimpleDateFormat("yyyy-MM-dd:HH:mm:ss").format(new Date());
-
 
         Resource experiment = ResourceFactory.createResource(jobExecBaseIri + timeStamp);
 
@@ -90,10 +97,12 @@ public class Multithreaded {
         RdfGroupBy.enh()
             .on(IguanaVocab.workload)
             .on(IV.job)
+            .on(IV.thread)
             .agg(CV.value, OWLTIME.numericDuration, AggAvg.class)
             .agg(CV.stDev, OWLTIME.numericDuration, AccStatStdDevPopulation.class)
             .apply(observations.stream())
-            .map(g -> g.rename("http://ex.org/avg/query-{0}", IV.job))
+            //.map(g -> g.rename("http://ex.org/avg/query{0}-user{1}", IV.job, IV.thread, IV.thread))
+            .map(g -> g.rename("http://ex.org/avg/query{0}-user{1}", IV.job, IV.thread, IV.thread))
             .collect(Collectors.toList());
 
 
@@ -102,18 +111,17 @@ public class Multithreaded {
 
         // Chart specific post processing
         avgs.forEach(g -> g
-                .addProperty(CV.series, g.getModel().createResource("http://example.org/Default")) // g.getProperty(IV.job).getObject()
+//                .addProperty(CV.series, g.getModel().createResource("http://example.org/Default")) // g.getProperty(IV.job).getObject()
+//                .addProperty(CV.seriesLabel,g.getProperty(CV.series).getResource().getLocalName())
                 .addProperty(CV.category, g.getProperty(IguanaVocab.workload).getObject())
                 .addProperty(CV.categoryLabel, g.getProperty(CV.category).getResource().getLocalName())
-                .addProperty(CV.seriesLabel,g.getProperty(CV.series).getResource().getLocalName())
+                .addLiteral(CV.series, g.getProperty(IV.thread).getInt()) // g.getProperty(IV.job).getObject()
+                .addLiteral(CV.seriesLabel, g.getProperty(IV.thread).getString()) // g.getProperty(IV.job).getObject()
          );
 
         avgs
         .forEach(r -> RDFDataMgr.write(System.out, r.getModel(), RDFFormat.TURTLE_BLOCKS));
 
-//        StatisticalCategoryDataset dataset =
-//        StatisticalCategoryDatasetBuilder.create(RdfStatisticalDatasetAccessor.create())
-//            .apply(avgs.stream());
 
 //        File outFile = File.createTempFile("beast-", ".pdf").getAbsoluteFile();
         CategoryChart xChart = new CategoryChartBuilder()
@@ -130,9 +138,22 @@ public class Multithreaded {
 
         XChartStatBarChartProcessor.addSeries(xChart, avgs);
 
-        new SwingWrapper<CategoryChart>(xChart).displayChart();
+        //new SwingWrapper<CategoryChart>(xChart).displayChart();
 
-//        JFreeChart chart = IguanaDatasetProcessors.createStatisticalBarChart(dataset);
+
+
+      StatisticalCategoryDataset dataset =
+      StatisticalCategoryDatasetBuilder.create(RdfStatisticalDatasetAccessor.create())
+          .apply(avgs.stream());
+
+      JFreeChart jChart = IguanaDatasetProcessors.createStatisticalBarChart(dataset);
+      ChartPanel chartPanel = new ChartPanel(jChart);
+      chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
+      JFrame frame = new JFrame();
+      frame.add(chartPanel);
+      frame.pack();
+      frame.setVisible(true);
+
 //        ChartUtilities2.saveChartAsPDF(outFile, chart, 1000, 500);
 //
 //        logger.info("Chart written to " + outFile.getAbsolutePath());
