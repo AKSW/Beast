@@ -5,13 +5,14 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
+import java.util.Set;
 import java.util.function.Function;
 
 import org.aksw.beast.vocabs.CV;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.knowm.xchart.CategoryChart;
+
 
 public class XChartStatBarChartProcessor {
 
@@ -39,7 +40,22 @@ public class XChartStatBarChartProcessor {
 //
 //	}
 
-    public static void addSeries(CategoryChart chart, Collection<Resource> seriesData) {
+
+
+    /**
+     * Whether to sort the static data (if present) by the given xData comparator (if present)
+     * when adding series to the chart.
+     *
+     */
+    public static void setOrderXData(boolean tf) {
+
+    }
+
+    public static <S, X> void addSeries(
+    		CategoryChart chart,
+    		Collection<Resource> seriesData,
+    		Function<Set<S>, List<S>> seriesArranger,
+    		Function<Set<X>, List<X>> xArranger) {
 
         // Partition resources by their series
         Map<String, Collection<Resource>> seriesToData =
@@ -64,6 +80,10 @@ public class XChartStatBarChartProcessor {
                     hasErrorBars = true;
                     errorBar = r.getProperty(CV.stDev).getDouble();
                 }
+
+                xData.add(x);
+                yData.add(y);
+                errorBars.add(errorBar);
 
                 xData.add(x);
                 yData.add(y);

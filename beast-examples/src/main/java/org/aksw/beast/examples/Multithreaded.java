@@ -135,7 +135,8 @@ public class Multithreaded {
                 .build();
         //xChart.getStyler().setY
 
-        XChartStatBarChartProcessor.addSeries(xChart, avgs);
+
+        XChartStatBarChartProcessor.addSeries(xChart, avgs, null, null);
 
         xChart.getStyler().setLegendPosition(LegendPosition.InsideNW);
 
