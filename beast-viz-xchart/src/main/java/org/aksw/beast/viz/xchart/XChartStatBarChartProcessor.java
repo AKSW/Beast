@@ -85,7 +85,8 @@ public class XChartStatBarChartProcessor {
     		Function<? super RDFNode, String> seriesToLabel,
     		Function<? super RDFNode, Object> xToLabel,
     		Function<Set<RDFNode>, List<RDFNode>> seriesArranger,
-    		Function<Set<RDFNode>, List<RDFNode>> xArranger) {
+    		Function<Set<RDFNode>, List<RDFNode>> xArranger,
+    		boolean autoRange) {
 
     	// Collect the extensions of the series and category dimensions
     	// and index data points
@@ -94,12 +95,20 @@ public class XChartStatBarChartProcessor {
     	Map<RDFNode, Map<RDFNode, Entry<Object, Number>>> seriesToCatToCell = new HashMap<>();
 
     	boolean hasErrorBars = false;
-    	seriesData.forEach(r -> {
+    	Double min = chart.getStyler().getYAxisMin();
+    	Double max = chart.getStyler().getYAxisMax();
+    	for(Resource r : seriesData) {
     		RDFNode s = r.getProperty(CV.series).getObject();
     		RDFNode x = r.getProperty(CV.category).getObject();
 
     		Object value = r.getProperty(CV.value).getObject().asLiteral().getValue();
             Statement errP = r.getProperty(CV.stDev);
+
+            if(value instanceof Number) {
+            	Number v = (Number)value;
+            	min = min == null ? v.doubleValue() : Math.min(min, v.doubleValue());
+            	max = max == null ? v.doubleValue() : Math.max(max, v.doubleValue());
+            }
 
             Number errorBar = 0.0;
             if(errP != null) {
@@ -112,7 +121,13 @@ public class XChartStatBarChartProcessor {
 
     		seriesExt.add(s);
     		categoriesExt.add(x);
-    	});
+    	}
+
+System.out.println(max);
+
+    	chart.getStyler().setYAxisMin(min);
+    	chart.getStyler().setYAxisMax(max);
+
 
     	// Arrange the dimensions
     	List<RDFNode> series = seriesArranger == null

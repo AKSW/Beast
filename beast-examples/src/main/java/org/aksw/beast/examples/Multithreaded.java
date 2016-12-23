@@ -155,13 +155,12 @@ public class Multithreaded {
         DimensionArranger<RDFNode> seriesArr = new DimensionArranger<>(ms);
 
         Function<Set<RDFNode>, List<RDFNode>> fnx = arr;
-        XChartStatBarChartProcessor.addSeries(xChart, avgs, null, null, seriesArr, fnx);
+        XChartStatBarChartProcessor.addSeries(xChart, avgs, null, null, seriesArr, fnx, true);
 
         xChart.getStyler().setLegendPosition(LegendPosition.InsideNW);
 
-        xChart.getStyler().setYAxisMin(0.0001);
-        xChart.getStyler().setYAxisMax(1.0);
         xChart.getStyler().setYAxisLogarithmic(true);
+        //xChart.getStyler().setYAxisDecimalPattern(yAxisDecimalPattern)
         xChart.getStyler().setYAxisTicksVisible(true);
 
         VectorGraphicsEncoder.saveVectorGraphic(xChart, "/tmp/Sample_Chart", VectorGraphicsFormat.SVG);
