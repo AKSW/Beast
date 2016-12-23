@@ -1,4 +1,4 @@
-package org.aksw.beast.examples;
+package org.aksw.beast.rdfstream.experimental;
 
 import java.io.File;
 import java.util.function.Function;

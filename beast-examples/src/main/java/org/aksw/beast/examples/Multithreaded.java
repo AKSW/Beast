@@ -1,5 +1,7 @@
 package org.aksw.beast.examples;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.function.BiConsumer;
@@ -20,7 +22,6 @@ import org.aksw.beast.vocabs.OWLTIME;
 import org.aksw.iguana.vocab.IguanaVocab;
 import org.aksw.simba.lsq.vocab.LSQ;
 import org.apache.jena.query.Query;
-import org.apache.jena.query.QueryFactory;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
@@ -49,8 +50,11 @@ public class Multithreaded {
 //        Model m = RDFDataMgr.loadModel("queries.ttl");
 //        List<Resource> workloads = m.listSubjectsWithProperty(LSQ.text).toList();
 
-        //String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
-        Resource experiment = ResourceFactory.createResource();
+        String jobExecBaseIri = "http://example.org/jobExec/";
+        String timeStamp = new SimpleDateFormat("yyyy-MM-dd:HH:mm:ss").format(new Date());
+
+
+        Resource experiment = ResourceFactory.createResource(jobExecBaseIri + timeStamp);
 
         // TODO Exception in query parsing is swallowed
         List<Resource> workloads = IntStream.range(0, 20)
@@ -73,7 +77,7 @@ public class Multithreaded {
         // Further, attach an identifier for the thread and craft the final IRI
         Stream<Stream<Resource>> workflowGen =
                 IntStream.range(0, n).mapToObj(i ->
-                    workflowTemplate.apply(() -> workloads.stream()).get()
+                    workflowTemplate.transform(workloads)
                     .peek(r -> r.addLiteral(IV.thread, i + 1))
                     .map(r -> r.rename("http://ex.org/thread{0}-run{1}-query{2}", IV.thread, IV.run, IV.job)));
 
@@ -87,9 +91,7 @@ public class Multithreaded {
             .on(IguanaVocab.workload)
             .on(IV.job)
             .agg(CV.value, OWLTIME.numericDuration, AggAvg.class)
-            //.agg(CV.stDev, OWLTIME.numericDuration, AggStDev.class)
             .agg(CV.stDev, OWLTIME.numericDuration, AccStatStdDevPopulation.class)
-            //.agg(IV.phase, OWLTIME.numericDuration, AccStatStdDevSample.class)
             .apply(observations.stream())
             .map(g -> g.rename("http://ex.org/avg/query-{0}", IV.job))
             .collect(Collectors.toList());

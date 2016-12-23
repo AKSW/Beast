@@ -1,6 +1,14 @@
 package org.aksw.beast.rdfstream.experimental;
 
 import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.LongStream;
+import java.util.stream.Stream;
+
+import org.aksw.beast.vocabs.IV;
+import org.apache.jena.rdf.model.Property;
+import org.apache.jena.rdf.model.Resource;
 
 /**
  * This file only contains a collection of ideas.
@@ -82,84 +90,155 @@ import java.util.function.BiFunction;
  * @param <S> The step context type
  */
 public class Job<I, O, J, S>
-	implements BiFunction<String, J, JobInstance<I, O, S>>
+    implements BiFunction<String, J, JobInstance<I, O, S>>
 {
-	protected String jobName;
+    protected String jobName;
 
-	protected int nextStepId = 0;
+    protected int nextStepId = 0;
 
-	protected String lastStep = null;
+    protected String lastStep = null;
 
-	protected BiFunction<String, StepContext<J, S>, JobInstance<I, O, S>> current;
+    protected BiFunction<String, StepContext<J, S>, JobInstance<I, O, S>> current;
 
 
-	protected BiFunction<J, Void, S> stepContextFactory;;
+    protected BiFunction<J, Void, S> stepContextFactory;;
 
-	//protected Function<Supplier<Stream<I>>, Supplier<Stream<O>>
+    //protected Function<Supplier<Stream<I>>, Supplier<Stream<O>>
 
-	public static <I, O, J, S> Job<I, O, J, S> start(String jobId) {
+    public static <I, O, J, S> Job<I, O, J, S> start(String jobId) {
 
 //		return new Job<>();
-		return null;
-	}
+        return null;
+    }
 
-	public Job(int nextStepId, String lastStep) {
-		super();
-		this.nextStepId = nextStepId;
-		this.lastStep = lastStep;
-		this.current = current;
-	}
+    public Job(int nextStepId, String lastStep) {
+        super();
+        this.nextStepId = nextStepId;
+        this.lastStep = lastStep;
+        this.current = current;
+    }
 
-	public <U> Job<I, O, J, S> map(String stepName, BiFunction<I, J, O> fn) {
-		lastStep = stepName;
 
-		//BiFunction<String, C, JobInstance<T>> next = (ji, c) -> ((stepName, c) -> s);
+    public static Resource getOrCreateStepExecCtx(Resource jobExecCtx, String stepName) {
+        return null;
+    }
 
-		//return new Job<>(current.andThen(next));
-		return null;
-	}
+    public static void initProperty(Resource stepExecCtx, Property property, Object val) {
+        //return null;
+    }
 
-	/**
-	 * Skip parent step execution if it can be read from a checkpoint file
-	 *
-	 * A step execution is completed when all items in the stream have been processed.
-	 *
-	 *
-	 * @return
-	 */
-	public <U> Job<I, O, J, S> checkpoint() {
-		// Return a job instance function which based on
-		// (i) jobName, (ii) most recent stepName, (iii) jobInstanceName
-		// performs a lookup of whether for an item there is a cache entry
+    public static long getOrSetLong(Resource stepExecCtx, Property property, Object val) {
+        //return null;
+        return 0;
+    }
 
-		BiFunction<String, StepContext<J, S>, JobInstance<I, O, S>> stepFactory =
-				(stepName, stepContext) ->
-					(instanceName, inSupplier) -> {
-						// if checkpoint entry for (job, step, jobContext, stepContext)
-						// else, execute the provided stream
-						inSupplier.get();
-						System.out.println(String.join(", ", jobName, stepName, instanceName));
+    /**
+     * Create a repetition step
+     *
+     *
+     *
+     *
+     * Will getOrCreate a stepExecutionCntext from the jobExecutionContext
+     * and add the currentIteration and maxIteration to it.
+     *
+     * @param stepName
+     */
+    public void repeat(String stepName, int n) {
 
-						return current.apply(stepName, stepContext).apply(instanceName, inSupplier);
-					};
+        Function<Resource, Object> result = (jobExecCtx) -> {
+            Resource stepExecCtx = getOrCreateStepExecCtx(jobExecCtx, stepName);
 
-					return null;
-	}
+            long offset = getOrSetLong(stepExecCtx, IV.phase, 0); // currentIteration
+            long maxIt = getOrSetLong(stepExecCtx, IV.run, n); // maxIteration
 
-	@Override
-	public JobInstance<I, O, S> apply(String t, J u) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
-	/**
-	 * Performs item based caching, i.e.
-	 * for a given input item.
-	 *
-	 * Note: equivalent items must not occur within the same context
-	 *
-	 * @return
-	 */
+            Function<Supplier<Stream<ItemContext<I, Resource>>>, Supplier<Stream<ItemContext<I, Resource>>>> r =
+             (ss) -> (() -> LongStream.range(offset, maxIt).boxed()
+                    .flatMap(i -> {
+                        // Update step execution
+                        stepExecCtx.removeAll(IV.phase).addLiteral(IV.phase, i);
+
+                        // Map incoming items to the new step context
+                        return ss.get().map(e -> new ItemContext<I, Resource>(e.getItem(), stepExecCtx));
+                        //.peek(r -> r.addLiteral(property, offset + i))));
+                    }));
+
+
+
+            return null;
+        };
+
+        //return result;
+    }
+
+    /**
+     * Store the result for a given item and its context.
+     *
+     *
+     * out = fn(in)
+     *
+     */
+    //public void cache()
+
+
+    /**
+     * Add a mapping step to the job
+     *
+     * @param stepName
+     * @param fn
+     * @return
+     */
+    public <U> Job<I, O, J, S> map(String stepName, BiFunction<I, J, O> fn) {
+        lastStep = stepName;
+
+
+        //BiFunction<String, C, JobInstance<T>> next = (ji, c) -> ((stepName, c) -> s);
+
+        //return new Job<>(current.andThen(next));
+        return null;
+    }
+
+    /**
+     * Skip parent step execution if it can be read from a checkpoint file
+     *
+     * A step execution is completed when all items in the stream have been processed.
+     *
+     *
+     * @return
+     */
+    public <U> Job<I, O, J, S> checkpoint() {
+        // Return a job instance function which based on
+        // (i) jobName, (ii) most recent stepName, (iii) jobInstanceName
+        // performs a lookup of whether for an item there is a cache entry
+
+        BiFunction<String, StepContext<J, S>, JobInstance<I, O, S>> stepFactory =
+                (stepName, stepContext) ->
+                    (instanceName, inSupplier) -> {
+                        // if checkpoint entry for (job, step, jobContext, stepContext)
+                        // else, execute the provided stream
+                        inSupplier.get();
+                        System.out.println(String.join(", ", jobName, stepName, instanceName));
+
+                        return current.apply(stepName, stepContext).apply(instanceName, inSupplier);
+                    };
+
+                    return null;
+    }
+
+    @Override
+    public JobInstance<I, O, S> apply(String t, J u) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /**
+     * Performs item based caching, i.e.
+     * for a given input item.
+     *
+     * Note: equivalent items must not occur within the same context
+     *
+     * @return
+     */
 
 
 
