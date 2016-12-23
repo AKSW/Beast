@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.function.Function;
 
 import org.aksw.beast.vocabs.CV;
@@ -53,7 +54,7 @@ public class XChartStatBarChartProcessor {
 
             boolean hasErrorBars = false;
 
-            for(Resource r : seriesData) {
+            for(Resource r : items) {
                 Object x = r.getProperty(CV.categoryLabel).getObject().asLiteral().getValue();
                 Number y = (Number)r.getProperty(CV.value).getObject().asLiteral().getValue();
                 Number errorBar = 0;
@@ -69,7 +70,10 @@ public class XChartStatBarChartProcessor {
                 errorBars.add(errorBar);
             }
 
-            System.out.println("series" + seriesName + " xData: " + xData);
+//            System.out.println("series" + seriesName + " xData: " + xData);
+//            System.out.println("series" + seriesName + " yData: " + yData);
+
+            hasErrorBars = false;
 
             if(hasErrorBars) {
                 chart.addSeries(seriesName, xData, yData, errorBars);

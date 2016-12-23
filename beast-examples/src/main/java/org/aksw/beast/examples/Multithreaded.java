@@ -74,7 +74,7 @@ public class Multithreaded {
         Random rand = new Random();
         BiConsumer<Resource, Query> queryAnalyzer = (observationRes, query) -> {
             logger.debug("Faking query execution: " + observationRes + " with " + query);
-            BenchmarkTime.benchmark(observationRes, () -> Thread.sleep(rand.nextInt(50)));
+            BenchmarkTime.benchmark(observationRes, () -> Thread.sleep(rand.nextInt(500)));
         };
 
         RdfStream<Resource, ResourceEnh> workflowTemplate =
@@ -131,17 +131,22 @@ public class Multithreaded {
                 .xAxisTitle("Score")
                 .yAxisTitle("Number")
                 .build();
-
-        xChart.getStyler().setLegendPosition(LegendPosition.InsideNW);
-        //xChart.getStyler().setYAxisLogarithmic(true);
         //xChart.getStyler().setY
 
         XChartStatBarChartProcessor.addSeries(xChart, avgs);
 
-        //new SwingWrapper<CategoryChart>(xChart).displayChart();
+        xChart.getStyler().setLegendPosition(LegendPosition.InsideNW);
+
+        xChart.getStyler().setYAxisMin(0.0001);
+        xChart.getStyler().setYAxisMax(1.0);
+        xChart.getStyler().setYAxisLogarithmic(true);
+        xChart.getStyler().setYAxisTicksVisible(true);
+
+        new SwingWrapper<CategoryChart>(xChart).displayChart();
 
 
 
+        if(false) {
       StatisticalCategoryDataset dataset =
       StatisticalCategoryDatasetBuilder.create(RdfStatisticalDatasetAccessor.create())
           .apply(avgs.stream());
@@ -153,6 +158,7 @@ public class Multithreaded {
       frame.add(chartPanel);
       frame.pack();
       frame.setVisible(true);
+        }
 
 //        ChartUtilities2.saveChartAsPDF(outFile, chart, 1000, 500);
 //
