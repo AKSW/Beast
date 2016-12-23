@@ -100,7 +100,7 @@ public class MergeStrategy<T>
 	public List<T> apply(Set<? extends T> staticElements, Set<? extends T> dynamicElements) {
 
     	Set<? extends T> uniqDynamic = Sets.difference(dynamicElements, staticElements);
-    	Set<? extends T> uniqStatic = Sets.difference(staticElements, dynamicElements);
+//    	Set<? extends T> uniqStatic = Sets.difference(staticElements, dynamicElements);
 
     	Set<? extends T> first;
     	Set<? extends T> second;

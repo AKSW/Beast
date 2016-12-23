@@ -91,17 +91,18 @@ public class XChartStatBarChartProcessor {
     	// Collect the extensions of the series and category dimensions
     	// and index data points
     	Set<RDFNode> seriesExt = new LinkedHashSet<>();
-    	Set<RDFNode> categoriesExt = new LinkedHashSet<>();
-    	Map<RDFNode, Map<RDFNode, Entry<Object, Number>>> seriesToCatToCell = new HashMap<>();
+    	Set<RDFNode> xExt = new LinkedHashSet<>();
+    	Map<RDFNode, Map<RDFNode, Entry<Number, Number>>> seriesToCatToCell = new HashMap<>();
 
     	boolean hasErrorBars = false;
     	Double min = chart.getStyler().getYAxisMin();
     	Double max = chart.getStyler().getYAxisMax();
+
     	for(Resource r : seriesData) {
     		RDFNode s = r.getProperty(CV.series).getObject();
     		RDFNode x = r.getProperty(CV.category).getObject();
 
-    		Object value = r.getProperty(CV.value).getObject().asLiteral().getValue();
+    		Number value = (Number)r.getProperty(CV.value).getObject().asLiteral().getValue();
             Statement errP = r.getProperty(CV.stDev);
 
             if(value instanceof Number) {
@@ -120,13 +121,11 @@ public class XChartStatBarChartProcessor {
     			.put(x, new SimpleEntry<>(value, errorBar));
 
     		seriesExt.add(s);
-    		categoriesExt.add(x);
+    		xExt.add(x);
     	}
 
-System.out.println(max);
+    	System.out.println(seriesToCatToCell);
 
-    	chart.getStyler().setYAxisMin(min);
-    	chart.getStyler().setYAxisMax(max);
 
 
     	// Arrange the dimensions
@@ -135,8 +134,8 @@ System.out.println(max);
     			: seriesArranger.apply(seriesExt);
 
     	List<RDFNode> xs = xArranger == null
-    			? new ArrayList<>(categoriesExt)
-    			: xArranger.apply(categoriesExt);
+    			? new ArrayList<>(xExt)
+    			: xArranger.apply(xExt);
 
         // Partition resources by their series
 //        Map<RDFNode, Collection<Resource>> seriesToData =
@@ -146,14 +145,15 @@ System.out.println(max);
 //        	seriesToData = DimensionMap.wrap(seriesToData, seriesArranger);
 //        }
 
-        Entry<Object, Number> defaultE = new SimpleEntry<>(0.0, 0.0);
+        Entry<Number, Number> defaultE = new SimpleEntry<>(0.0, 0.0);
 
         int n = xs.size();
-        List<Object> xData = xs.stream()
+        List<Object> xLabels = xs.stream()
         		.map(x -> getValue(x, xToLabel))
         		.collect(Collectors.toList());
 
         for(RDFNode s : series) {
+    		Map<RDFNode, Entry<Number, Number>> catToCell = seriesToCatToCell.getOrDefault(s, Collections.emptyMap());
 
         	String seriesName = getLabel(s, seriesToLabel);
 
@@ -161,23 +161,37 @@ System.out.println(max);
             List<Number> errorBars = hasErrorBars ? new ArrayList<>(n) : null;
 
         	for(RDFNode x : xs) {
-        		Entry<Object, Number> e =
-        				seriesToCatToCell.getOrDefault(s, Collections.emptyMap())
-        				.getOrDefault(x, defaultE);
+        		Entry<Number, Number> e = catToCell.getOrDefault(x, defaultE);
 
-        		yData.add(e.getValue());
+        		yData.add(e.getKey());
         		if(errorBars != null) {
         			errorBars.add(e.getValue());
         		}
         	}
 
+        	System.out.println(yData);
+
         	if(hasErrorBars) {
-        		chart.addSeries(seriesName, xData, yData, errorBars);
+        		chart.addSeries(seriesName, xLabels, yData, errorBars);
         	} else {
-        		chart.addSeries(seriesName, xData, yData);
+        		chart.addSeries(seriesName, xLabels, yData);
         	}
 
         }
+
+        if(autoRange) {
+        	if(min != null) {
+        		min = Math.pow(10, Math.floor(Math.log10(min)));
+        	}
+
+        	if(max != null) {
+        		//max = Math.pow(10, Math.floor(Math.log10(max)));
+        	}
+
+        	chart.getStyler().setYAxisMin(min);
+        	chart.getStyler().setYAxisMax(max);
+        }
+
 //
 //        seriesToData.forEach((seriesName, items) -> {
 ////
