@@ -15,6 +15,7 @@ import javax.swing.JFrame;
 
 import org.aksw.beast.benchmark.performance.BenchmarkTime;
 import org.aksw.beast.benchmark.performance.PerformanceBenchmark;
+import org.aksw.beast.compare.StringPrettyComparator;
 import org.aksw.beast.concurrent.ParallelStreams;
 import org.aksw.beast.enhanced.ResourceEnh;
 import org.aksw.beast.rdfstream.RdfGroupBy;
@@ -23,6 +24,7 @@ import org.aksw.beast.viz.jfreechart.IguanaDatasetProcessors;
 import org.aksw.beast.viz.jfreechart.RdfStatisticalDatasetAccessor;
 import org.aksw.beast.viz.jfreechart.StatisticalCategoryDatasetBuilder;
 import org.aksw.beast.viz.xchart.DimensionArranger;
+import org.aksw.beast.viz.xchart.MergeStrategy;
 import org.aksw.beast.viz.xchart.XChartStatBarChartProcessor;
 import org.aksw.beast.vocabs.CV;
 import org.aksw.beast.vocabs.IV;
@@ -139,16 +141,21 @@ public class Multithreaded {
                 .build();
         //xChart.getStyler().setY
 
-        DimensionArranger<RDFNode> arr = new DimensionArranger<>();
+        MergeStrategy<RDFNode> ms = new MergeStrategy<>();
+        ms.setMergeEleCmp(StringPrettyComparator::doCompare);
+        ms.setMergeStrategy(MergeStrategy.MIX);
+        DimensionArranger<RDFNode> arr = new DimensionArranger<>(ms);
+
         arr.getPredefinedKeys().add(ResourceFactory.createResource("http://ex.org/q7"));
         arr.getPredefinedKeys().add(ResourceFactory.createPlainLiteral("This"));
         arr.getPredefinedKeys().add(ResourceFactory.createPlainLiteral("is"));
         arr.getPredefinedKeys().add(ResourceFactory.createPlainLiteral("a"));
         arr.getPredefinedKeys().add(ResourceFactory.createPlainLiteral("test"));
 
+        DimensionArranger<RDFNode> seriesArr = new DimensionArranger<>(ms);
 
         Function<Set<RDFNode>, List<RDFNode>> fnx = arr;
-        XChartStatBarChartProcessor.addSeries(xChart, avgs, null, null, null, fnx);
+        XChartStatBarChartProcessor.addSeries(xChart, avgs, null, null, seriesArr, fnx);
 
         xChart.getStyler().setLegendPosition(LegendPosition.InsideNW);
 

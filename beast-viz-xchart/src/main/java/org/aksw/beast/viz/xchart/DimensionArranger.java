@@ -16,6 +16,10 @@ public class DimensionArranger<T>
 		this(new LinkedHashSet<>(), new MergeStrategy<>());
 	}
 
+	public DimensionArranger(BiFunction<Set<? extends T>, Set<? extends T>, List<T>> mergeStrategy) {
+		this(new LinkedHashSet<>(), mergeStrategy);
+	}
+
 	public DimensionArranger(Set<T> predefinedKeys, BiFunction<Set<? extends T>, Set<? extends T>, List<T>> mergeStrategy) {
 		super();
 		this.predefinedKeys = predefinedKeys;

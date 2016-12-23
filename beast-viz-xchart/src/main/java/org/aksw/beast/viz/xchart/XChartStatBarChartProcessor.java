@@ -84,7 +84,7 @@ public class XChartStatBarChartProcessor {
     		Collection<Resource> seriesData,
     		Function<? super RDFNode, String> seriesToLabel,
     		Function<? super RDFNode, Object> xToLabel,
-    		Function<Set<? super RDFNode>, List<? extends RDFNode>> seriesArranger,
+    		Function<Set<RDFNode>, List<RDFNode>> seriesArranger,
     		Function<Set<RDFNode>, List<RDFNode>> xArranger) {
 
     	// Collect the extensions of the series and category dimensions
@@ -115,21 +115,21 @@ public class XChartStatBarChartProcessor {
     	});
 
     	// Arrange the dimensions
-    	List<? extends RDFNode> series = seriesArranger == null
+    	List<RDFNode> series = seriesArranger == null
     			? new ArrayList<>(seriesExt)
     			: seriesArranger.apply(seriesExt);
 
-    	List<? extends RDFNode> xs = xArranger == null
+    	List<RDFNode> xs = xArranger == null
     			? new ArrayList<>(categoriesExt)
     			: xArranger.apply(categoriesExt);
 
         // Partition resources by their series
-        Map<RDFNode, Collection<Resource>> seriesToData =
-                partition(seriesData, (r) -> r.getProperty(CV.series).getObject());
+//        Map<RDFNode, Collection<Resource>> seriesToData =
+//                partition(seriesData, (r) -> r.getProperty(CV.series).getObject());
 
-        if(seriesArranger != null) {
-        	seriesToData = DimensionMap.wrap(seriesToData, seriesArranger);
-        }
+//        if(seriesArranger != null) {
+//        	seriesToData = DimensionMap.wrap(seriesToData, seriesArranger);
+//        }
 
         Entry<Object, Number> defaultE = new SimpleEntry<>(0.0, 0.0);
 

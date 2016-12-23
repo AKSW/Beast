@@ -23,11 +23,10 @@ import org.apache.jena.ext.com.google.common.collect.Sets;
 public class MergeStrategy<T>
 	implements BiFunction<Set<? extends T>, Set<? extends T>, List<T>>
 {
-
-	protected static final int APPEND = 0;
-	protected static final int PREPEND = 1;
-	protected static final int MIX = 2;
-	protected static final int ERROR = 3;
+	public static final int APPEND = 0;
+	public static final int PREPEND = 1;
+	public static final int MIX = 2;
+	public static final int ERROR = 3;
 
 
 	protected Comparator<? super T> statEleCmp;
