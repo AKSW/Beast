@@ -32,6 +32,7 @@ import org.aksw.beast.vocabs.OWLTIME;
 import org.aksw.iguana.vocab.IguanaVocab;
 import org.aksw.simba.lsq.vocab.LSQ;
 import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryFactory;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
@@ -79,6 +80,8 @@ public class Multithreaded {
                 .collect(Collectors.toList());
 
         // Fake query execution
+        Function<Resource, Query> queryParser = (workloadRes) -> QueryFactory.create(workloadRes.getProperty(LSQ.text).getString());
+
         Random rand = new Random();
         BiConsumer<Resource, Query> queryAnalyzer = (observationRes, query) -> {
             logger.debug("Faking query execution: " + observationRes + " with " + query);
@@ -86,7 +89,9 @@ public class Multithreaded {
         };
 
         RdfStream<Resource, ResourceEnh> workflowTemplate =
-                PerformanceBenchmark.createQueryPerformanceEvaluationWorkflow(queryAnalyzer, 2, 3);
+                PerformanceBenchmark.createQueryPerformanceEvaluationWorkflow(Query.class,
+                        queryParser, queryAnalyzer,
+                        2, 3);
 
         // Create a stream where each element is an instanciation of the workflowTemplate with our workload
         // Further, attach an identifier for the thread and craft the final IRI

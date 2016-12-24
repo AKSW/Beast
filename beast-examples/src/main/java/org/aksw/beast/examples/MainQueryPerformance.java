@@ -3,6 +3,7 @@ package org.aksw.beast.examples;
 import java.util.List;
 import java.util.Random;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 import org.aksw.beast.benchmark.performance.BenchmarkTime;
 import org.aksw.beast.benchmark.performance.PerformanceBenchmark;
@@ -50,9 +51,11 @@ public class MainQueryPerformance {
             BenchmarkTime.benchmark(observationRes, () -> Thread.sleep(rand.nextInt(1000)));
         };
 
+        Function<Resource, Query> queryParser = (workloadRes) -> QueryFactory.create(workloadRes.getProperty(LSQ.text).getString());
+
         // Build the workflow template
-        PerformanceBenchmark.createQueryPerformanceEvaluationWorkflow(
-                queryAnalyzer, 2, 5)
+        PerformanceBenchmark.createQueryPerformanceEvaluationWorkflow(Query.class,
+                queryParser, queryAnalyzer, 2, 5)
         .map(observationRes -> observationRes.rename("http://example.org/observation/{0}-{1}", IV.run, IV.job))
         // instanciate it for our  data
         .apply(() -> workloads.stream()).get()

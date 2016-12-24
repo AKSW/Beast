@@ -1,6 +1,7 @@
 package org.aksw.beast.benchmark.performance;
 
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 import org.aksw.beast.enhanced.ResourceEnh;
 import org.aksw.beast.rdfstream.RdfStream;
@@ -15,17 +16,19 @@ import org.apache.jena.vocabulary.RDF;
 
 public class PerformanceBenchmark {
 
-    public static RdfStream<Resource, ResourceEnh>
+    public static <T> RdfStream<Resource, ResourceEnh>
     createQueryPerformanceEvaluationWorkflow(
-                BiConsumer<Resource, Query> queryExecutor,
+                Class<T> workloadClass,
+                Function<Resource, ? extends T> workloadParser,
+                BiConsumer<Resource, ? super T> workloadExecutor,
                 int warmUpRuns,
                 int evalRuns)
     {
         return RdfStream.startWithCopy()
-
+                //QueryFactory.create(workloadRes.getProperty(LSQ.text).getString()))
             // Parse the work load resource's query and attach it as a tag
             .peek(workloadRes -> workloadRes.as(ResourceEnh.class)
-                    .addTag(QueryFactory.create(workloadRes.getProperty(LSQ.text).getString())))
+                    .addTag(workloadParser.apply(workloadRes)))
             // Create a blank observation resource (we will give it a proper IRI later)
             // and link it back to the workload resource
             .map(workloadRes ->
@@ -39,7 +42,7 @@ public class PerformanceBenchmark {
                     .as(ResourceEnh.class))
 
             // Measure performance of executing the query
-            .peek(observationRes -> queryExecutor.accept(observationRes, observationRes.getTag(Query.class).get()))
+            .peek(observationRes -> workloadExecutor.accept(observationRes, observationRes.getTag(workloadClass).get()))
             //.map(x -> (Resource)x))
             .seq(
                 // Warm up run - the resources are processed, but filtered out
