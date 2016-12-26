@@ -64,6 +64,14 @@ public class Multithreaded {
 
         // Set up workloads and workflows
 
+        // Annotate all workloads participating in this benchmark
+        // Write out the random seed
+        // This way things become more reproducible
+        // workload participatedIn {somePhaseOfExperiment}
+        // workload excludedFrom {somePhaseOfExperiment}
+        //
+
+
 //        Model m = RDFDataMgr.loadModel("queries.ttl");
 //        List<Resource> workloads = m.listSubjectsWithProperty(LSQ.text).toList();
 
