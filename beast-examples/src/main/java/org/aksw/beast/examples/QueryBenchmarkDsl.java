@@ -28,5 +28,7 @@ public class QueryBenchmarkDsl {
         //new Delta(base)
         return null;
     }
+    
+    //addWorker(Supplier<Stream<Resource>> workload;
 
 }

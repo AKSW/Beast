@@ -1,5 +1,6 @@
 package org.aksw.beast.examples;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -33,7 +34,7 @@ import org.aksw.iguana.vocab.IguanaVocab;
 import org.aksw.simba.lsq.vocab.LSQ;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryFactory;
-import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
@@ -41,6 +42,7 @@ import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.sparql.expr.aggregate.AggAvg;
 import org.apache.jena.sparql.expr.aggregate.lib.AccStatStdDevPopulation;
+import org.apache.jena.vocabulary.RDFS;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.statistics.StatisticalCategoryDataset;
@@ -70,22 +72,43 @@ public class Multithreaded {
         // workload participatedIn {somePhaseOfExperiment}
         // workload excludedFrom {somePhaseOfExperiment}
         //
+        File annotationLayerFolder = new File("/tmp/beast-cache");
+        annotationLayerFolder.mkdirs();
+        Function<String, Function<Model, Model>> annotator = new ModelDeltaWrapper(annotationLayerFolder);
+        
+        
+        String workloadsIri = "queries.ttl";
 
+        // Load the base workloads
+        Model m = RDFDataMgr.loadModel(workloadsIri);
+        m = annotator.apply(workloadsIri).apply(m);
+        
+        List<Resource> workloads = m.listSubjectsWithProperty(LSQ.text).toList();
 
-//        Model m = RDFDataMgr.loadModel("queries.ttl");
-//        List<Resource> workloads = m.listSubjectsWithProperty(LSQ.text).toList();
+        workloads.forEach(r -> {
+        	r.addLiteral(RDFS.comment, "test");
+        	r.getModel().commit();
+        });
+        
+        
+        // Get or create the annotation layer for the workloads
+        // TODO How to find the annotations? They should use the same ID as used in loadModel()
+        
+        // Wrap the original workloads
+//        List<Resource> workloads = baseWorkloads.stream()
+//        		.map(r -> r.inModel(ModelFactory.createModelForGraph(new Delta(r.getModel().getGraph()))))
+//        		.collect(Collectors.toList());
 
         String jobExecBaseIri = "http://example.org/jobExec/";
         String timeStamp = new SimpleDateFormat("yyyy-MM-dd:HH:mm:ss").format(new Date());
 
         Resource experiment = ResourceFactory.createResource(jobExecBaseIri + timeStamp);
 
-        // TODO Exception in query parsing is swallowed
-        List<Resource> workloads = IntStream.range(0, 20)
-                .mapToObj(i ->
-                    ModelFactory.createDefaultModel().createResource("http://ex.org/q" + i)
-                        .addProperty(LSQ.text, "SELECT * { ?s ?p ?o }"))
-                .collect(Collectors.toList());
+//        List<Resource> workloads = IntStream.range(0, 20)
+//                .mapToObj(i ->
+//                    ModelFactory.createDefaultModel().createResource("http://ex.org/q" + i)
+//                        .addProperty(LSQ.text, "SELECT * { ?s ?p ?o }"))
+//                .collect(Collectors.toList());
 
         // Fake query execution
         Function<Resource, Query> queryParser = (workloadRes) -> QueryFactory.create(workloadRes.getProperty(LSQ.text).getString());
