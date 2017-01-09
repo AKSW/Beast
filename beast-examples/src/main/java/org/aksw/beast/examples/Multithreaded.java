@@ -114,9 +114,11 @@ public class Multithreaded {
 //                        .addProperty(LSQ.text, "SELECT * { ?s ?p ?o }"))
 //                .collect(Collectors.toList());
 
-        // Fake query execution
         Function<Resource, Query> queryParser = (workloadRes) -> QueryFactory.create(workloadRes.getProperty(LSQ.text).getString());
 
+        // If desired, wrap the parser with memoization 
+        
+        // Fake query execution
         Random rand = new Random();
         BiConsumer<Resource, Query> queryAnalyzer = (observationRes, query) -> {
             logger.debug("Faking query execution: " + observationRes + " with " + query);
