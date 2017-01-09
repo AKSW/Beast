@@ -18,6 +18,7 @@ import org.aksw.beast.benchmark.performance.BenchmarkTime;
 import org.aksw.beast.benchmark.performance.PerformanceBenchmark;
 import org.aksw.beast.compare.StringPrettyComparator;
 import org.aksw.beast.concurrent.ParallelStreams;
+import org.aksw.beast.diff.ModelDeltaWrapper;
 import org.aksw.beast.enhanced.ResourceEnh;
 import org.aksw.beast.rdfstream.RdfGroupBy;
 import org.aksw.beast.rdfstream.RdfStream;
@@ -81,6 +82,9 @@ public class Multithreaded {
 
         // Load the base workloads
         Model m = RDFDataMgr.loadModel(workloadsIri);
+        
+        // Wrap the workloads with a layer for adding annotations such as
+        // skipping due to exceptions or timeouts
         m = annotator.apply(workloadsIri).apply(m);
         
         List<Resource> workloads = m.listSubjectsWithProperty(LSQ.text).toList();

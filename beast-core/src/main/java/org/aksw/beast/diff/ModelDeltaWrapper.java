@@ -1,4 +1,4 @@
-package org.aksw.beast.examples;
+package org.aksw.beast.diff;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
