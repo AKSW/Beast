@@ -28,6 +28,8 @@ public class IV {
 
     public static final Property experiment = property("experiment");
     public static final Property method = property("method");
+    public static final Property value = property("value");
+    public static final Property assessment = property("assessment");
 
 
     public static final Property thread = property("thread");
