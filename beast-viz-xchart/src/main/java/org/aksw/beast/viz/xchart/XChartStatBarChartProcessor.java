@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.aksw.beast.compare.StringPrettyComparator;
 import org.aksw.beast.vocabs.CV;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
@@ -88,6 +89,14 @@ public class XChartStatBarChartProcessor {
             Function<Set<RDFNode>, List<RDFNode>> xArranger,
             boolean autoRange) {
 
+	    MergeStrategy<RDFNode> ms = new MergeStrategy<>();
+	    ms.setMergeEleCmp(StringPrettyComparator::doCompare);
+	    ms.setMergeStrategy(MergeStrategy.MIX);
+	    DimensionArranger<RDFNode> arr = new DimensionArranger<>(ms);
+
+	      xArranger = xArranger != null ? xArranger : arr;
+	      seriesArranger = seriesArranger != null ? seriesArranger : arr;
+    	
         // Collect the extensions of the series and category dimensions
         // and index data points
         Set<RDFNode> seriesExt = new LinkedHashSet<>();

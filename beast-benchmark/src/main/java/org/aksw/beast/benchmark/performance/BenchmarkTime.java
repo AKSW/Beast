@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -96,6 +97,22 @@ public class BenchmarkTime
         } };
 
         start().create().accept(r, wrapper);
+    }
+
+    @SuppressWarnings("unchecked")
+	public static <T> T benchmark(Resource r, Callable<T> t) {
+    	Object[] result = new Object[1];
+
+        Runnable wrapper = () -> { try {
+            T tmp = t.call();
+            result[0] = tmp;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } };
+
+        start().create().accept(r, wrapper);
+        
+        return (T)result[0];
     }
 
     public BiConsumer<Resource, Runnable> create() {

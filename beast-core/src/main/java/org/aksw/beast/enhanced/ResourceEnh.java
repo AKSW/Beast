@@ -133,7 +133,7 @@ public class ResourceEnh
     public static Object resolve(Resource r, Object o) {
         Object result;
         if(o instanceof Property) {
-            result = r.getProperty((Property)o).getObject().asLiteral().getValue();
+            result = r.getRequiredProperty((Property)o).getObject().asLiteral().getValue();
         } else if(o instanceof Supplier) {
             Object tmp = ((Supplier<?>)o).get();
             result = resolve(r, tmp);

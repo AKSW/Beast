@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -93,7 +94,7 @@ public class RdfGroupBy<I extends Resource, O extends Resource>
 
     public RdfGroupBy<I, O> on(Property tgtProperty, Property srcProperty) {
 
-        on(tgtProperty, (r) -> r.getProperty(srcProperty).getObject());
+        on(tgtProperty, (r) -> r.getRequiredProperty(srcProperty).getObject());
 
         return this;
     }
@@ -121,7 +122,7 @@ public class RdfGroupBy<I extends Resource, O extends Resource>
     }
 
     public static RDFNode getObject(Resource r, Property p) {
-        Statement stmt = r.getProperty(p);
+        Statement stmt = r.getRequiredProperty(p);
         RDFNode result = stmt == null ? null : stmt.getObject();
         return result;
     }
@@ -278,6 +279,9 @@ public class RdfGroupBy<I extends Resource, O extends Resource>
 
         Stream<RDFNode> values = groupToAccs.get(group).stream()
             .map(Accumulator::getValue)
+            // Note: Stack trace does not include the following line
+            // if we just used .peek(Objects::requireNonNull)
+            .peek(v -> Objects.requireNonNull(v))
             .map(nodeValue -> ModelUtils.convertGraphNodeToRDFNode(nodeValue.asNode(), group.getModel()));
 
         StreamUtils.zip(properties, values, SimpleEntry<Property, RDFNode>::new)
