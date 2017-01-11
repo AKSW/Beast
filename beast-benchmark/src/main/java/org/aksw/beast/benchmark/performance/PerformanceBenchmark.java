@@ -25,7 +25,7 @@ public class PerformanceBenchmark {
                 //QueryFactory.create(workloadRes.getProperty(LSQ.text).getString()))
             // Parse the work load resource's query and attach it as a tag
         	// TODO: We could check whether the workload already has such tag attached
-        	
+
             .peek(workloadRes -> workloadRes.as(ResourceEnh.class)
                     .addTag(workloadParser.apply(workloadRes)))
             // Create a blank observation resource (we will give it a proper IRI later)
@@ -56,7 +56,7 @@ public class PerformanceBenchmark {
                 	.peek(r -> r.addLiteral(IV.warmup, false))
             )
 
-            // Give the observation resource a proper name
+            // For convenience, attach the local name of the workload resource to the observation resource
             .peek(r -> r.addLiteral(IV.job, r.getProperty(IguanaVocab.workload).getResource().getLocalName()))
             ;
     }

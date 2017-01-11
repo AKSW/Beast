@@ -27,12 +27,16 @@ public class IV {
     public static final Property skip = property("skip");
 
     public static final Property experiment = property("experiment");
+    public static final Property method = property("method");
+
+
     public static final Property thread = property("thread");
     public static final Property job = property("job");
     public static final Property step = property("step");
     public static final Property run = property("run");
     public static final Property phase = property("phase");
     public static final Property cycle = property("cycle");
+
 
 
     // Overall id of an item in a stream

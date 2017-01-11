@@ -186,7 +186,11 @@
 				<version>4.1.4.RELEASE</version>
 			</dependency>
 
-
+			<dependency>
+				<groupId>org.eclipse.jgit</groupId>
+				<artifactId>org.eclipse.jgit</artifactId>
+				<version>4.6.0.201612231935-r</version>
+			</dependency>
 
 
 			<!-- <dependency> -->
@@ -365,7 +369,7 @@
 					</executions>
 				</plugin>
 
-				<!--This plugin's configuration is used to store Eclipse m2e settings 
+				<!--This plugin's configuration is used to store Eclipse m2e settings
 					only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>

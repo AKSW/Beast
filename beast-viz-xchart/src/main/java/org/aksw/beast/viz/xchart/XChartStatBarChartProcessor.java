@@ -96,7 +96,7 @@ public class XChartStatBarChartProcessor {
 
 	      xArranger = xArranger != null ? xArranger : arr;
 	      seriesArranger = seriesArranger != null ? seriesArranger : arr;
-    	
+
         // Collect the extensions of the series and category dimensions
         // and index data points
         Set<RDFNode> seriesExt = new LinkedHashSet<>();
@@ -183,10 +183,10 @@ public class XChartStatBarChartProcessor {
                 min = Math.pow(10, Math.floor(Math.log10(min)));
             }
 
-            // Charts seemingly look better without ajusting the maximum to the next label
-//            if(max != null) {
-//                max = Math.pow(10, Math.floor(Math.log10(max)));
-//            }
+            // Charts seemingly look better without adjusting the maximum to the next label
+            if(max != null) {
+                //max = Math.pow(10, Math.floor(Math.log10(max)));
+            }
 
             chart.getStyler().setYAxisMin(min);
             chart.getStyler().setYAxisMax(max);
