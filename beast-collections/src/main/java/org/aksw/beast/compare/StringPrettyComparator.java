@@ -20,7 +20,7 @@ import java.util.Objects;
  *
  */
 // TODO Rename to something like StringWithIntegerComparator
-public class StringPrettyComparator implements Comparator<String> {
+public class StringPrettyComparator implements Comparator<Object> {
     public static boolean isDigitPrefix(String s) {
         if (s.isEmpty())
             return false;
@@ -127,16 +127,16 @@ public class StringPrettyComparator implements Comparator<String> {
     }
 
     @Override
-    public int compare(String a, String b) {
+    public int compare(Object a, Object b) {
         int result = doCompare(a, b);
         return result;
     }
 
     public static int doCompare(Object x, Object y) {
-    	String a = Objects.toString(x);
-    	String b = Objects.toString(y);
+        String a = Objects.toString(x);
+        String b = Objects.toString(y);
 
-    	int result = doCompare(a, b);
-    	return result;
+        int result = doCompare(a, b);
+        return result;
     }
 }

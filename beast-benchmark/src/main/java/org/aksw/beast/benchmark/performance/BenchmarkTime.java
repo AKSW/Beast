@@ -100,8 +100,8 @@ public class BenchmarkTime
     }
 
     @SuppressWarnings("unchecked")
-	public static <T> T benchmark(Resource r, Callable<T> t) {
-    	Object[] result = new Object[1];
+    public static <T> T benchmark(Resource r, Callable<T> t) {
+        Object[] result = new Object[1];
 
         Runnable wrapper = () -> { try {
             T tmp = t.call();
@@ -111,7 +111,7 @@ public class BenchmarkTime
         } };
 
         start().create().accept(r, wrapper);
-        
+
         return (T)result[0];
     }
 
@@ -134,7 +134,7 @@ public class BenchmarkTime
             } catch (Exception e) {
                 // ex = e;
                 logger.warn("Reporting failed task execution", e);
-                r.addLiteral(LSQ.executionError, "" + e);
+                r.addLiteral(LSQ.execError, "" + e);
 
                 exceptionHandler.accept(r, e);
             }

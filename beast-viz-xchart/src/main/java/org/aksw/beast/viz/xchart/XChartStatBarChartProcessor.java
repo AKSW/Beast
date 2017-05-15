@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import org.aksw.beast.compare.StringPrettyComparator;
 import org.aksw.beast.vocabs.CV;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
@@ -148,7 +149,8 @@ public class XChartStatBarChartProcessor {
 
         int n = xs.size();
         List<Object> xLabels = xs.stream()
-                .map(x -> getValue(x, xToLabel))
+                .map(x -> "" + getValue(x, xToLabel))
+                .map(x -> StringUtils.isEmpty(x) ? "(no category label)" : x)
                 .collect(Collectors.toList());
 
         for(RDFNode s : series) {
@@ -156,6 +158,11 @@ public class XChartStatBarChartProcessor {
 
             String seriesName = getLabel(s, seriesToLabel);
 
+            
+            if(StringUtils.isEmpty(seriesName)) {
+            	seriesName = "no series name";
+            }
+            
             List<Number> yData = new ArrayList<>(n);
             List<Number> errorBars = hasErrorBars ? new ArrayList<>(n) : null;
 
