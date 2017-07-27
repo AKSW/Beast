@@ -63,8 +63,9 @@ public class ResourceEnh
     @SuppressWarnings("deprecation")
     public ResourceEnh copyTagsFrom(Resource other) {
         if(other.canAs(ResourceEnh.class)) {
+            Map<Node, MutableClassToInstanceMap<Object>> otherMeta = other.as(ResourceEnh.class).meta;
             Node tmp = other.asNode();
-            MutableClassToInstanceMap<Object> srcMap = meta.get(tmp);
+            MutableClassToInstanceMap<Object> srcMap = otherMeta.get(tmp);
 
             if(srcMap != null) {
                 MutableClassToInstanceMap<Object> tgtMap = getOrCreateTagMap();
@@ -88,7 +89,8 @@ public class ResourceEnh
     public ResourceEnh addTag(Object o) {
         Objects.requireNonNull(o);
 
-        addTag(o.getClass(), o);
+        Class<?> clazz = o.getClass();
+        addTag(clazz, o);
 
         return this;
     }
@@ -181,6 +183,12 @@ public class ResourceEnh
         Model m = ModelFactoryEnh.createModel();
         m.add(ResourceUtils.reachableClosure(task));
         ResourceEnh result = task.inModel(m).as(ResourceEnh.class);
+
+        result.copyTagsFrom(task);
+//        if(task instanceof ResourceEnh) {
+//        	((ResourceEnh)task).copyTagsFrom(other)
+//        }
+
         return result;
     }
 
