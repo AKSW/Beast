@@ -1,6 +1,5 @@
 package org.aksw.beast.rdfstream;
 
-import java.util.Collection;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -8,12 +7,14 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.aksw.beast.enhanced.ResourceData;
 import org.aksw.beast.enhanced.ResourceEnh;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
 
-public class RdfStream<I extends Resource, O extends Resource>
+public class RdfStream<I, O extends Resource>
     implements Function<Supplier<Stream<I>>, Supplier<Stream<O>>>
+//    extends ObjStream<I, O>
 {
     protected Function<Supplier<Stream<I>>, Supplier<Stream<O>>> current;
 
@@ -21,6 +22,7 @@ public class RdfStream<I extends Resource, O extends Resource>
         super();
         this.current = current;
     }
+
 
     public static <T extends Resource> RdfStream<T, T>
         start()
@@ -39,30 +41,14 @@ public class RdfStream<I extends Resource, O extends Resource>
         return new RdfStream<T, ResourceEnh>(RdfStreamOps.<T>startWithCopy());
     }
 
-    public <Y extends Resource> RdfStream<I, Y>
-        map(Function<O, Y> fn)
-    {
-        return new RdfStream<I, Y>(this.current.andThen(RdfStreamOps.map(fn)));
+
+    public static <X> RdfStream<X, ResourceData<X>> zipWithResource(Supplier<Function<X, ResourceData<X>>> itemToNode) {
+        return new RdfStream<>((dataStream) -> RdfStreamOps.zipWithResource(dataStream, itemToNode));
     }
 
-    public <Y extends Resource> RdfStream<I, Y>
-        flatMap(Function<O, Stream<Y>> fn)
-    {
-        return new RdfStream<I, Y>(this.current.andThen(RdfStreamOps.flatMap(fn)));
-    }
-
-
-    public RdfStream<I, O>
-        filter(Predicate<O> predicate)
-    {
-        return new RdfStream<I, O>(this.current.andThen(RdfStreamOps.filter(predicate)));
-    }
-
-    public RdfStream<I, O>
-        peek(Consumer<O> action)
-    {
-        return new RdfStream<I, O>(this.current.andThen(RdfStreamOps.peek(action)));
-    }
+//    public static <X> RdfStream<X, ResourceData<X>> zipWithResource() {
+//        return new RdfStream<>((dataStream) -> RdfStreamOps.zipWithResource());
+//    }
 
     public RdfStream<I, O>
         withIndex(Property property)
@@ -88,18 +74,64 @@ public class RdfStream<I extends Resource, O extends Resource>
         return new RdfStream<I, O>(this.current.andThen(RdfStreamOps.repeat(n, property, offset)));
     }
 
-    @SafeVarargs
-    final public <Y extends Resource> RdfStream<I, Y>
-        seq(Function<Supplier<Stream<O>>, Supplier<Stream<Y>>> ... subFlows)
+
+
+
+    //@Override
+    public <Y extends Resource> RdfStream<I, Y>
+        map(Function<O, Y> fn)
     {
-        return new RdfStream<I, Y>(this.current.andThen(RdfStreamOps.seq(subFlows)));
+        return new RdfStream<I, Y>(this.current.andThen(ObjStreamOps.map(fn)));
+    }
+
+    //@Override
+    public <Y> ObjStream<I, Y>
+        mapToObj(Function<O, Y> fn)
+    {
+        return new ObjStream<I, Y>(this.current.andThen(ObjStreamOps.map(fn)));
     }
 
 
+    //@Override
+    public <Y extends Resource> RdfStream<I, Y>
+        flatMap(Function<O, Stream<Y>> fn)
+    {
+        return new RdfStream<I, Y>(this.current.andThen(ObjStreamOps.flatMap(fn)));
+    }
+
+    public RdfStream<I, O>
+        filter(Predicate<O> predicate)
+    {
+        return new RdfStream<I, O>(this.current.andThen(ObjStreamOps.filter(predicate)));
+    }
+
+    public RdfStream<I, O>
+        peek(Consumer<O> action)
+    {
+        return new RdfStream<I, O>(this.current.andThen(ObjStreamOps.peek(action)));
+    }
+
+    @SuppressWarnings("unchecked")
+    public <Y extends Resource> RdfStream<I, Y>
+        seq(Function<Supplier<Stream<O>>, Supplier<Stream<Y>>> ... subFlows)
+    {
+        return new RdfStream<I, Y>(this.current.andThen(ObjStreamOps.seq(subFlows)));
+    }
+
+
+
+
+
+    //@Override
     public Function<Supplier<Stream<I>>, Supplier<Stream<O>>> get() {
         return current;
     }
 
+
+
+    /**
+     * Shorthand for .get().apply(...)
+     */
     @Override
     public Supplier<Stream<O>> apply(Supplier<Stream<I>> t) {
         return current.apply(t);
