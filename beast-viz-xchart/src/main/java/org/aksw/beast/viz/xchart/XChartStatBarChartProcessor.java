@@ -116,16 +116,22 @@ public class XChartStatBarChartProcessor {
             Number value = (Number)r.getProperty(CV.value).getObject().asLiteral().getValue();
             Statement errP = r.getProperty(CV.stDev);
 
-            if(value instanceof Number) {
-                Number v = (Number)value;
-                min = min == null ? v.doubleValue() : Math.min(min, v.doubleValue());
-                max = max == null ? v.doubleValue() : Math.max(max, v.doubleValue());
+            double errorBar = 0.0;
+            if(errP != null) {
+                errorBar = Math.abs(errP.getDouble());
             }
 
-            Number errorBar = 0.0;
-            if(errP != null) {
-                errorBar = errP.getDouble();
+            
+            if(value instanceof Number) {
+                double v = ((Number)value).doubleValue();
+
+                double vmin = v - errorBar;
+                double vmax = v + errorBar;
+                
+                min = min == null ? vmin : Math.min(min, vmin);
+                max = max == null ? vmax : Math.max(max, vmax);
             }
+
 
             seriesToCatToCell
                 .computeIfAbsent(s, (_s) -> new HashMap<>())
