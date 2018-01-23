@@ -88,7 +88,8 @@ public class XChartStatBarChartProcessor {
             Function<? super RDFNode, Object> xToLabel,
             Function<Set<RDFNode>, List<RDFNode>> seriesArranger,
             Function<Set<RDFNode>, List<RDFNode>> xArranger,
-            boolean autoRange) {
+            boolean autoRange,
+            boolean isErrorBarsEnabled) {
 
 	    MergeStrategy<RDFNode> ms = new MergeStrategy<>();
 	    ms.setMergeEleCmp(StringPrettyComparator::doCompare);
@@ -104,7 +105,7 @@ public class XChartStatBarChartProcessor {
         Set<RDFNode> xExt = new LinkedHashSet<>();
         Map<RDFNode, Map<RDFNode, Entry<Number, Number>>> seriesToCatToCell = new HashMap<>();
 
-        boolean hasErrorBars = false;
+        //boolean hasErrorBars = true;
         Double min = chart.getStyler().getYAxisMin();
         Double max = chart.getStyler().getYAxisMax();
 
@@ -164,7 +165,7 @@ public class XChartStatBarChartProcessor {
             }
             
             List<Number> yData = new ArrayList<>(n);
-            List<Number> errorBars = hasErrorBars ? new ArrayList<>(n) : null;
+            List<Number> errorBars = isErrorBarsEnabled ? new ArrayList<>(n) : null;
 
             for(RDFNode x : xs) {
                 Entry<Number, Number> e = catToCell.getOrDefault(x, defaultE);
@@ -177,7 +178,7 @@ public class XChartStatBarChartProcessor {
 
 //            System.out.println(yData);
 
-            if(hasErrorBars) {
+            if(isErrorBarsEnabled) {
                 chart.addSeries(seriesName, xLabels, yData, errorBars);
             } else {
                 chart.addSeries(seriesName, xLabels, yData);

@@ -197,7 +197,7 @@ public class Multithreaded {
         DimensionArranger<RDFNode> seriesArr = new DimensionArranger<>(ms);
 
         Function<Set<RDFNode>, List<RDFNode>> fnx = arr;
-        XChartStatBarChartProcessor.addSeries(xChart, avgs, null, null, seriesArr, fnx, true);
+        XChartStatBarChartProcessor.addSeries(xChart, avgs, null, null, seriesArr, fnx, true, false);
 
         xChart.getStyler().setLegendPosition(LegendPosition.InsideNW);
 

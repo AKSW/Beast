@@ -57,7 +57,7 @@ public class PerformanceBenchmark {
             )
 
             // For convenience, attach the local name of the workload resource to the observation resource
-            .peek(r -> r.addLiteral(IV.job, r.getProperty(IguanaVocab.workload).getResource().getLocalName()))
+            //.peek(r -> r.addLiteral(IV.job, r.getProperty(IguanaVocab.workload).getResource().getLocalName()))
             ;
     }
 }

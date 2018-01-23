@@ -20,6 +20,8 @@ public class XChartStatBarChartBuilder {
     protected Function<Set<RDFNode>, List<RDFNode>> xArranger;
     protected boolean autoRange = true;
 	
+    protected boolean isErrorBarsEnabled = false;
+    
     public static XChartStatBarChartBuilder from(CategoryChart chart) {
     	XChartStatBarChartBuilder result = new XChartStatBarChartBuilder();
     	result.setChart(chart);
@@ -89,17 +91,26 @@ public class XChartStatBarChartBuilder {
 		this.autoRange = autoRange;
 		return this;
 	}
-	
+
+	public boolean isErrorBarsEnabled() {
+		return isErrorBarsEnabled;
+	}
+
+	public XChartStatBarChartBuilder setErrorBarsEnabled(boolean isErrorBarsEnabled) {
+		this.isErrorBarsEnabled = isErrorBarsEnabled;
+		return this;
+	}
+
 	public XChartStatBarChartBuilder processSeries(Collection<Resource> seriesData) {
 		
-		if(seriesToLabel == null) {
-			seriesToLabel = (r) -> r.asResource().getProperty(RDFS.label).getString();
-		}
-		
-		if(xToLabel == null) {
-			// Return the workload's label
-			xToLabel = (r) -> r.asResource().getProperty(RDFS.label).getString();
-		}
+//		if(seriesToLabel == null) {
+//			seriesToLabel = (r) -> r.asResource().getProperty(RDFS.label).getString();
+//		}
+//		
+//		if(xToLabel == null) {
+//			// Return the workload's label
+//			xToLabel = (r) -> r.asResource().getProperty(RDFS.label).getString();
+//		}
 		
 		XChartStatBarChartProcessor.addSeries(
 				chart,
@@ -108,7 +119,9 @@ public class XChartStatBarChartBuilder {
 				xToLabel,
 				seriesArranger,
 				xArranger,
-				autoRange);
+				autoRange,
+				isErrorBarsEnabled
+				);
 		
 		return this;
 	}
