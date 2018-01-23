@@ -141,10 +141,12 @@ public class BenchmarkTime
 
             sw.stop();
             Calendar stopInstant = new GregorianCalendar();
-            Duration duration = Duration.ofNanos(sw.elapsed(TimeUnit.NANOSECONDS));
+            //Duration duration = Duration.ofNanos(sw.elapsed(TimeUnit.NANOSECONDS));
+
+            double durationInSeconds = sw.elapsed(TimeUnit.NANOSECONDS) / 1000000000.0;
 
             r.addLiteral(PROV.endAtTime, stopInstant);
-            r.addLiteral(OWLTIME.numericDuration, duration.get(ChronoUnit.NANOS) / 1000000000.0);
+            r.addLiteral(OWLTIME.numericDuration, durationInSeconds);
 
             try {
                 reportConsumer.accept(r);
