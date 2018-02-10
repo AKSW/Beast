@@ -54,6 +54,8 @@
 		<module>beast-bundle</module>
 
 		<module>beast-examples</module>
+
+                <module>beast-debian-cli</module>
 	</modules>
 
 	<properties>
