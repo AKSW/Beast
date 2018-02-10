@@ -1,0 +1,19 @@
+# idea for conflating chart information into a single resource for allowing quick and diry chart specs
+
+eg:exp1
+  a cv:QuickStatBarChart ;
+  rdfs:label "Performance Histogram" ;
+  cv:xAxisTitle "Workload" ;
+  cv:yAxisTitle "Time (s)" ;
+  cv:width 1650 ;
+  cv:height 1050 ;
+  cv:legendPosition "InsideNW" ;
+  cv:yAxisLogarithmic true ;
+  cv:yAxisTicksVisible true ;
+  cv:xAxisLabelRotation 45 ;
+  cv:yAxisDecimalPattern "###,###,###,###,###.#####" ;
+  cv:sliceProperty bsbm:experimentId ;
+#  cv:series "some-triple-store" ;
+  cv:valueProperty <http://bsbm.org/avgQet> ;
+  bsbm:experimentId eg:bsbm-exp1 ;
+  .
