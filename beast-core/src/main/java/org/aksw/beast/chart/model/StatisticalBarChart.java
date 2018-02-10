@@ -5,7 +5,7 @@ import org.aksw.jena_sparql_api.mapper.annotation.IriNs;
 import org.aksw.jena_sparql_api.mapper.annotation.RdfType;
 
 @RdfType("cv:StatisticalBarChart")
-public class StastisticalBarChart {
+public class StatisticalBarChart {
 	@IriNs("cv")
 	protected Integer width;
 	

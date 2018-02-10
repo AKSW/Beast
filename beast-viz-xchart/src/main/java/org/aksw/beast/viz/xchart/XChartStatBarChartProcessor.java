@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.aksw.beast.chart.accessor.AttributeAccessor;
 import org.apache.commons.lang3.StringUtils;
 import org.knowm.xchart.CategoryChart;
 

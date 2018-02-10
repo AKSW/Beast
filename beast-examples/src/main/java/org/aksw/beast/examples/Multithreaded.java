@@ -16,6 +16,8 @@ import javax.swing.JFrame;
 
 import org.aksw.beast.benchmark.performance.BenchmarkTime;
 import org.aksw.beast.benchmark.performance.PerformanceBenchmark;
+import org.aksw.beast.chart.accessor.DimensionArranger;
+import org.aksw.beast.chart.accessor.MergeStrategy;
 import org.aksw.beast.compare.StringPrettyComparator;
 import org.aksw.beast.concurrent.ParallelStreams;
 import org.aksw.beast.diff.ModelDeltaWrapper;
@@ -25,8 +27,6 @@ import org.aksw.beast.rdfstream.RdfStream;
 import org.aksw.beast.viz.jfreechart.IguanaDatasetProcessors;
 import org.aksw.beast.viz.jfreechart.RdfStatisticalDatasetAccessor;
 import org.aksw.beast.viz.jfreechart.StatisticalCategoryDatasetBuilder;
-import org.aksw.beast.viz.xchart.DimensionArranger;
-import org.aksw.beast.viz.xchart.MergeStrategy;
 import org.aksw.beast.viz.xchart.XChartStatBarChartProcessor;
 import org.aksw.beast.vocabs.CV;
 import org.aksw.beast.vocabs.IV;

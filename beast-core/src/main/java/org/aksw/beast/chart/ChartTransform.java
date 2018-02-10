@@ -1,13 +1,17 @@
-package org.aksw.beast.chart.model;
+package org.aksw.beast.chart;
 
+import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 
 import javax.persistence.criteria.Root;
 
-import org.aksw.beast.viz.xchart.ChartModelConfigurerXChart;
+import org.aksw.beast.chart.model.ConceptBasedSeries;
+import org.aksw.beast.chart.model.StatisticalBarChart;
 import org.aksw.beast.vocabs.CV;
 import org.aksw.jena_sparql_api.concepts.Concept;
 import org.aksw.jena_sparql_api.core.SparqlService;
@@ -36,20 +40,12 @@ import org.apache.jena.sparql.syntax.ElementGroup;
 import org.apache.jena.sparql.syntax.ElementTriplesBlock;
 import org.apache.jena.sparql.syntax.Template;
 import org.apache.jena.vocabulary.RDF;
-import org.junit.Test;
-import org.knowm.xchart.CategoryChart;
-import org.knowm.xchart.SwingWrapper;
-import org.knowm.xchart.VectorGraphicsEncoder;
-import org.knowm.xchart.VectorGraphicsEncoder.VectorGraphicsFormat;
 
+public class ChartTransform {
+	public static List<Entry<StatisticalBarChart, Model>> transform(Model model) throws Exception {
+		List<Entry<StatisticalBarChart, Model>> result = new ArrayList<>();
 
-
-public class TestChartMapper {
-	
-	@Test
-	public void testChartRendering() throws Exception {
-
-        Model model = RDFDataMgr.loadModel("statistical-data.ttl");
+        //Model model = RDFDataMgr.loadModel("statistical-data.ttl");
 
         
         SparqlService sparqlService = FluentSparqlService.from(model).create();
@@ -58,7 +54,7 @@ public class TestChartMapper {
         				.setNsPrefixes(PrefixMapping.Extended)
         				.setNsPrefix("qb", "http://purl.org/linked-data/cube#")
         	            .setNsPrefix("cv", "http://aksw.org/chart-vocab/"))
-        		.addScanPackageName(TestChartMapper.class.getPackage().getName())
+        		.addScanPackageName(StatisticalBarChart.class.getPackage().getName())
         		.setSparqlService(sparqlService)
         		.getObject();
 
@@ -169,17 +165,12 @@ public class TestChartMapper {
 
             Model chartDataSet = sparqlService.getQueryExecutionFactory().createQueryExecution(query).execConstruct();
             RDFDataMgr.write(System.out, chartDataSet, RDFFormat.TURTLE_PRETTY);
-
-            
-            CategoryChart xChart = ChartModelConfigurerXChart.toChart(chartDataSet, c);
-            //VectorGraphicsEncoder.saveVectorGraphic(xChart, "/tmp/Sample_Chart", VectorGraphicsFormat.SVG);
-          //SSystem.out.println("exp: " + Math.pow(10, Math.floor(Math.log10(0.0123))));
-             //new SwingWrapper<CategoryChart>(xChart).displayChart();
+        
+        
+            result.add(new SimpleEntry<>(c, chartDataSet));
         }
         
-        //Thread.sleep(5000);
-//        System.out.println("Done");
-
+        
+        return result;
 	}
-
 }

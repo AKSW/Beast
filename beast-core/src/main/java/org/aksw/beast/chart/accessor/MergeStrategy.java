@@ -1,4 +1,4 @@
-package org.aksw.beast.viz.xchart;
+package org.aksw.beast.chart.accessor;
 
 import java.util.ArrayList;
 import java.util.Collections;

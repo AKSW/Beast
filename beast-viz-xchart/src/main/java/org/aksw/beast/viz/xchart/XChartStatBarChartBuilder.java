@@ -3,6 +3,7 @@ package org.aksw.beast.viz.xchart;
 import java.util.Collection;
 import java.util.function.Function;
 
+import org.aksw.beast.chart.accessor.AttributeAccessorRdf;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;

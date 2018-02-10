@@ -1,8 +1,8 @@
-package org.aksw.beast.chart.model;
+package org.aksw.beast.viz.xchart;
 
 import java.util.Collection;
 
-import org.aksw.beast.viz.xchart.XChartStatBarChartBuilder;
+import org.aksw.beast.chart.model.StatisticalBarChart;
 import org.aksw.beast.vocabs.CV;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
@@ -13,7 +13,7 @@ import org.knowm.xchart.CategoryChartBuilder;
 
 
 public class ChartModelConfigurerXChart {
-	public static CategoryChart toChart(Model dataModel, StastisticalBarChart chartModel) {
+	public static CategoryChart toChart(Model dataModel, StatisticalBarChart chartModel) {
 	      CategoryChart result = new CategoryChartBuilder()
 	              .width(chartModel.getWidth())
 	              .height(chartModel.getHeight())
