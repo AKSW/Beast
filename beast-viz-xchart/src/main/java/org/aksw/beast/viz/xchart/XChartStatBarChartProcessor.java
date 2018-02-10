@@ -14,17 +14,67 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.aksw.beast.compare.StringPrettyComparator;
-import org.aksw.beast.vocabs.CV;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jena.rdf.model.RDFNode;
-import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.rdf.model.Statement;
 import org.knowm.xchart.CategoryChart;
 
 
+//
+//class AttributeAccessorRdfBase
+//	extends AttributeAccessorBase<Resource, RDFNode>
+//{
+//	protected ModulerAttributeAccessor<? super Resource, ? extends RDFNode> delegate;
+//	
+//	// must not be null
+//	protected Property valueProperty;
+//	
+//	// if null, the label is the attribute value
+//	protected Property labelProperty;
+//	
+//	protected Property seriesProperty;
+//	
+//	
+//	@Override
+//	public RDFNode getValue(Resource item) {
+//		
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//	
+//	@Override
+//	public Object getLabel(RDFNode value) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//
+//
+//	@Override
+//	public List<RDFNode> arrange(Collection<? extends RDFNode> values) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//}
+
+
+
+//class ResourceTransformerBase<R, S, C> {
+//	protected AttributeAccessor<R, S> series;
+//	protected AttributeAccessor<R, C> category;
+//	
+//    protected Function<? super R, Number> getValue;
+//    protected Function<? super R, Object> getError;
+//}
+//
+//class ResourceTransformer {
+//	
+//	
+//	public void setCategoryAccessor(Property property) {
+//		
+//	}
+//}
+//
 public class XChartStatBarChartProcessor {
 
+	
     // Partitions
     public static <T, K> Map<K, Collection<T>> partition(Collection<T> items, Function<? super T, ? extends K> itemToKey) {
         Map<K, Collection<T>> result = new LinkedHashMap<>();
@@ -60,65 +110,118 @@ public class XChartStatBarChartProcessor {
 
     }
 
-    public static String getLabel(RDFNode node, Function<? super RDFNode, String> fn) {
-        String result = node == null
-                ? "(null)"
-                : fn != null ? fn.apply(node) : node.toString();
+//    
+//    public static void addSeries(
+//            CategoryChart chart,
+//            Collection<Resource> seriesData,
+//            
+//            Property seriesProperty,
+//            Property categoryProperty,
+//            
+//            
+//            Function<? super RDFNode, String> seriesToLabel,
+//            Function<? super RDFNode, ?> xToLabel,
+//            Function<Set<RDFNode>, List<RDFNode>> seriesArranger,
+//            Function<Set<RDFNode>, List<RDFNode>> xArranger,
+//            
+//            boolean autoRange,
+//            boolean isErrorBarsEnabled) {    		
+//    ) {
+//    }    
+//    
+//    public static void addSeries(
+//            CategoryChart chart,
+//            Collection<Resource> seriesData,
+//            
+//            Function<? super RDFNode, String> seriesToLabel,
+//            Function<? super RDFNode, ?> xToLabel,
+//            Function<Set<RDFNode>, List<RDFNode>> seriesArranger,
+//            Function<Set<RDFNode>, List<RDFNode>> xArranger,
+//            
+//            boolean autoRange,
+//            boolean isErrorBarsEnabled) {    		
+//    ) {
+//    	
+//    	addSeriesCore(
+//    			chart,
+//    			seriesData,
+//    			
+//    			r -> r.getProperty(CV.series).getObject(),
+//    			r -> r.getProperty(CV.category).getObject(),
+//    			
+//    			r -> (Number)r.getProperty(CV.value).getObject().asLiteral().getValue(),
+//    			r -> 
+//    			
+//    			seriesToLabel,
+//    			xToLabel,
+//    			seriesArranger,
+//    			xArranger
+//    	);
+//    }
 
-        return result;
-    }
-
-    public static Object getValue(RDFNode node, Function<? super RDFNode, Object> fn) {
-        Object result = node == null
-                ? "(null)"
-                : fn != null ? fn.apply(node) : (
-                    node.isURIResource()
-                        ? node.asResource().getLocalName()
-                        : node.asLiteral().getValue()
-                );
-
-
-        return result;
-    }
-
-    public static void addSeries(
+    public static <R, S, C, V, E> void addSeries(
             CategoryChart chart,
-            Collection<Resource> seriesData,
-            Function<? super RDFNode, String> seriesToLabel,
-            Function<? super RDFNode, Object> xToLabel,
-            Function<Set<RDFNode>, List<RDFNode>> seriesArranger,
-            Function<Set<RDFNode>, List<RDFNode>> xArranger,
+            Collection<R> seriesData,
+
+            AttributeAccessor<R, S> seriesAccessor,
+            AttributeAccessor<R, C> categoryAccessor,
+            Function<? super R, ?> valueAccessor,
+            Function<? super R, ?> errorAccessor,
+//
+//            
+//            Function<? super S, String> seriesToLabel,
+//            Function<? super C, ?> xToLabel,
+//            Function<Set<S>, List<S>> seriesArranger,
+//            Function<Set<C>, List<C>> xArranger,
+//
+//          Function<? super R, S> getSeries,
+//          Function<? super R, C> getCategory,
+            
             boolean autoRange,
             boolean isErrorBarsEnabled) {
 
-	    MergeStrategy<RDFNode> ms = new MergeStrategy<>();
-	    ms.setMergeEleCmp(StringPrettyComparator::doCompare);
-	    ms.setMergeStrategy(MergeStrategy.MIX);
-	    DimensionArranger<RDFNode> arr = new DimensionArranger<>(ms);
-
-	      xArranger = xArranger != null ? xArranger : arr;
-	      seriesArranger = seriesArranger != null ? seriesArranger : arr;
+//	    MergeStrategy<C> ms = new MergeStrategy<>();
+//	    ms.setMergeEleCmp(StringPrettyComparator::doCompare);
+//	    ms.setMergeStrategy(MergeStrategy.MIX);
+//	    DimensionArranger<C> arr = new DimensionArranger<>(ms);
+//
+//	      xArranger = xArranger != null ? xArranger : arr;
+//	      
+//	      
+//		    MergeStrategy<S> msS = new MergeStrategy<>();
+//		    msS.setMergeEleCmp(StringPrettyComparator::doCompare);
+//		    msS.setMergeStrategy(MergeStrategy.MIX);
+//		    DimensionArranger<S> arrS = new DimensionArranger<>(msS);
+//
+//	      seriesArranger = seriesArranger != null ? seriesArranger : arrS;
 
         // Collect the extensions of the series and category dimensions
         // and index data points
-        Set<RDFNode> seriesExt = new LinkedHashSet<>();
-        Set<RDFNode> xExt = new LinkedHashSet<>();
-        Map<RDFNode, Map<RDFNode, Entry<Number, Number>>> seriesToCatToCell = new HashMap<>();
+        Set<S> seriesExt = new LinkedHashSet<>();
+        Set<C> xExt = new LinkedHashSet<>();
+        Map<S, Map<C, Entry<Number, Number>>> seriesToCatToCell = new HashMap<>();
 
         //boolean hasErrorBars = true;
         Double min = chart.getStyler().getYAxisMin();
         Double max = chart.getStyler().getYAxisMax();
 
-        for(Resource r : seriesData) {
-            RDFNode s = r.getProperty(CV.series).getObject();
-            RDFNode x = r.getProperty(CV.category).getObject();
+        for(R r : seriesData) {
+        	S s = seriesAccessor.getValue(r);
+        	C x = categoryAccessor.getValue(r);
+        	
+//            RDFNode s = r.getProperty(CV.series).getObject();
+//            RDFNode x = r.getProperty(CV.category).getObject();
 
-            Number value = (Number)r.getProperty(CV.value).getObject().asLiteral().getValue();
-            Statement errP = r.getProperty(CV.stDev);
+//            Number value = (Number)r.getProperty(CV.value).getObject().asLiteral().getValue();
+//            Statement errP = r.getProperty(CV.stDev);
 
+        	Number value = (Number)valueAccessor.apply(r);
+        	Number errP = errorAccessor == null ? null : (Number)errorAccessor.apply(r);
+        	
             double errorBar = 0.0;
             if(errP != null) {
-                errorBar = Math.abs(errP.getDouble());
+                //errorBar = Math.abs(errP.getDouble());
+            	errorBar = Math.abs(errP.doubleValue());
             }
 
             
@@ -144,27 +247,32 @@ public class XChartStatBarChartProcessor {
 //        System.out.println(seriesToCatToCell);
 
         // Arrange the dimensions
-        List<RDFNode> series = seriesArranger == null
-                ? new ArrayList<>(seriesExt)
-                : seriesArranger.apply(seriesExt);
-
-        List<RDFNode> xs = xArranger == null
-                ? new ArrayList<>(xExt)
-                : xArranger.apply(xExt);
+        List<S> series = seriesAccessor.arrange(seriesExt);
+//        List<S> series = seriesArranger == null
+//                ? new ArrayList<>(seriesExt)
+//                : seriesArranger.apply(seriesExt);
+//
+        List<C> xs = categoryAccessor.arrange(xExt);
+//        List<C> xs = xArranger == null
+//                ? new ArrayList<>(xExt)
+//                : xArranger.apply(xExt);
 
         Entry<Number, Number> defaultE = new SimpleEntry<>(0.0, 0.0);
 
+        
         int n = xs.size();
         List<Object> xLabels = xs.stream()
-                .map(x -> "" + getValue(x, xToLabel))
+                //getValue(x, xToLabel)
+                //.map(x -> "" + xToLabel.apply(x))
+        		.map(x -> "" + categoryAccessor.getLabel(x))
                 .map(x -> StringUtils.isEmpty(x) ? "(no category label)" : x)
                 .collect(Collectors.toList());
 
-        for(RDFNode s : series) {
-            Map<RDFNode, Entry<Number, Number>> catToCell = seriesToCatToCell.getOrDefault(s, Collections.emptyMap());
+        for(S s : series) {
+            Map<C, Entry<Number, Number>> catToCell = seriesToCatToCell.getOrDefault(s, Collections.emptyMap());
 
-            String seriesName = getLabel(s, seriesToLabel);
-
+            //String seriesName = getLabel(s, seriesToLabel);
+            String seriesName = "" + seriesAccessor.getLabel(s); //seriesToLabel.apply(s);
             
             if(StringUtils.isEmpty(seriesName)) {
             	seriesName = "no series name";
@@ -173,7 +281,7 @@ public class XChartStatBarChartProcessor {
             List<Number> yData = new ArrayList<>(n);
             List<Number> errorBars = isErrorBarsEnabled ? new ArrayList<>(n) : null;
 
-            for(RDFNode x : xs) {
+            for(C x : xs) {
                 Entry<Number, Number> e = catToCell.getOrDefault(x, defaultE);
 
                 yData.add(e.getKey());

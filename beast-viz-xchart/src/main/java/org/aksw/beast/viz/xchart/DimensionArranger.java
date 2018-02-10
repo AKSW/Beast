@@ -7,7 +7,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class DimensionArranger<T>
-	implements Function<Set<T>, List<T>>
+	implements Function<Set<? extends T>, List<T>>
 {
 	protected Set<T> predefinedKeys;
 	protected BiFunction<Set<? extends T>, Set<? extends T>, List<T>> mergeStrategy;
@@ -43,7 +43,7 @@ public class DimensionArranger<T>
 	}
 
 	@Override
-	public List<T> apply(Set<T> items) {
+	public List<T> apply(Set<? extends T> items) {
 		List<T> result = mergeStrategy.apply(predefinedKeys, items);
 		return result;
 	}
