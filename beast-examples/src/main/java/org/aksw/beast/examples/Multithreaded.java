@@ -196,20 +196,22 @@ public class Multithreaded {
 
         DimensionArranger<RDFNode> seriesArr = new DimensionArranger<>(ms);
 
-        Function<Set<RDFNode>, List<RDFNode>> fnx = arr;
-        XChartStatBarChartProcessor.addSeries(xChart, avgs, null, null, seriesArr, fnx, true, false);
-
-        xChart.getStyler().setLegendPosition(LegendPosition.InsideNW);
-
-        xChart.getStyler().setYAxisLogarithmic(true);
-        //xChart.getStyler().setYAxisDecimalPattern(yAxisDecimalPattern)
-        xChart.getStyler().setYAxisTicksVisible(true);
-        //xChart.getStyler().setYAxisTickMarkSpacingHint(yAxisTickMarkSpacingHint)
-
-        VectorGraphicsEncoder.saveVectorGraphic(xChart, "/tmp/Sample_Chart", VectorGraphicsFormat.SVG);
-//SSystem.out.println("exp: " + Math.pow(10, Math.floor(Math.log10(0.0123))));
-        new SwingWrapper<CategoryChart>(xChart).displayChart();
-
+//        Function<Set<RDFNode>, List<RDFNode>> fnx = arr;
+        
+//        if(todoFixThisCodeAgain) {
+//        XChartStatBarChartProcessor.addSeries(xChart, avgs, null, null, seriesArr, fnx, true, false);
+//
+//        xChart.getStyler().setLegendPosition(LegendPosition.InsideNW);
+//
+//        xChart.getStyler().setYAxisLogarithmic(true);
+//        //xChart.getStyler().setYAxisDecimalPattern(yAxisDecimalPattern)
+//        xChart.getStyler().setYAxisTicksVisible(true);
+//        //xChart.getStyler().setYAxisTickMarkSpacingHint(yAxisTickMarkSpacingHint)
+//
+//        VectorGraphicsEncoder.saveVectorGraphic(xChart, "/tmp/Sample_Chart", VectorGraphicsFormat.SVG);
+////SSystem.out.println("exp: " + Math.pow(10, Math.floor(Math.log10(0.0123))));
+//        new SwingWrapper<CategoryChart>(xChart).displayChart();
+//        }
 
 
         if(false) {

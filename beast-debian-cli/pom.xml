@@ -5,7 +5,7 @@
 
 	<parent>
 		<groupId>org.aksw.beast</groupId>
-		<artifactId>sparqlify-parent</artifactId>
+		<artifactId>beast-parent</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
@@ -71,14 +71,14 @@
 
 							<dataSet>
 
-								<data>
-									<type>directory</type>
-									<src>${basedir}/src/deb/resources/etc</src>
-									<mapper>
-										<type>perm</type>
-										<prefix>/etc</prefix>
-									</mapper>
-								</data>
+<!-- 								<data> -->
+<!-- 									<type>directory</type> -->
+<!-- 									<src>${basedir}/src/deb/resources/etc</src> -->
+<!-- 									<mapper> -->
+<!-- 										<type>perm</type> -->
+<!-- 										<prefix>/etc</prefix> -->
+<!-- 									</mapper> -->
+<!-- 								</data> -->
 
 								<data>
 									<type>directory</type>

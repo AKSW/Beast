@@ -74,12 +74,18 @@
 
 	<dependencyManagement>
 		<dependencies>
-		
+
 			<dependency>
 				<groupId>org.aksw.jena-sparql-api</groupId>
 				<artifactId>jena-sparql-api-mapper</artifactId>
 				<version>${jsa.version}</version>
 			</dependency>
+
+                        <dependency>
+                                <groupId>org.aksw.beast</groupId>
+                                <artifactId>beast-cli</artifactId>
+                                <version>${project.version}</version>
+                        </dependency>
 
 			<dependency>
 				<groupId>org.aksw.beast</groupId>
