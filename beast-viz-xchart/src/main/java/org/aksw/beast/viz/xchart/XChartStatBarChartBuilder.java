@@ -162,6 +162,7 @@ public class XChartStatBarChartBuilder {
 //			// Return the workload's label
 //			xToLabel = (r) -> r.asResource().getProperty(RDFS.label).getString();
 //		}
+		
 		XChartStatBarChartProcessor.addSeries(
 			chart,
 			seriesData,

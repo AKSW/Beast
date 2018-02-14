@@ -1,7 +1,10 @@
 package org.aksw.beast.viz.xchart;
 
 import java.util.Collection;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
+import org.aksw.beast.chart.model.ChartStyle;
 import org.aksw.beast.chart.model.StatisticalBarChart;
 import org.aksw.beast.vocabs.CV;
 import org.apache.jena.rdf.model.Model;
@@ -10,9 +13,26 @@ import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
 import org.knowm.xchart.CategoryChart;
 import org.knowm.xchart.CategoryChartBuilder;
+import org.knowm.xchart.style.CategoryStyler;
+import org.knowm.xchart.style.Styler.LegendPosition;
 
 
 public class ChartModelConfigurerXChart {
+	
+//	public static <T> T applyIfPresent(Supplier<? extends T> getter, Function<? super T, ?> setter) {
+//		T result = applyIfPresent(getter, v -> { setter.apply(v); });
+//		return result;
+//	}
+
+	public static <T> T applyIfPresent(Supplier<? extends T> getter, Consumer<? super T> setter) {
+		T value = getter.get();
+		if(value != null) {
+			setter.accept(value);
+		}
+
+		return value;
+	}
+
 	public static CategoryChart toChart(Model dataModel, StatisticalBarChart chartModel) {
 	      CategoryChart result = new CategoryChartBuilder()
 	              .width(chartModel.getWidth())
@@ -22,6 +42,22 @@ public class ChartModelConfigurerXChart {
 	              .yAxisTitle(chartModel.getyAxisTitle())
 	              .build();
 
+	      
+	      CategoryStyler styler = result.getStyler();
+	      ChartStyle style = chartModel.getStyle();
+	      
+
+	      applyIfPresent(style::getyAxisDecimalPattern, styler::setYAxisDecimalPattern);
+	      applyIfPresent(style::getLegendPosition, str -> styler.setLegendPosition(LegendPosition.valueOf(str)));
+	      applyIfPresent(style::getxAxisLabelRotation, v -> { styler.setXAxisLabelRotation(v.intValue()); });
+	      applyIfPresent(style::isyAxisLogarithmic, styler::setYAxisLogarithmic);
+	      applyIfPresent(style::getyAxisDecimalPattern, styler::setYAxisDecimalPattern);
+	      
+	      
+	      
+	      styler.setYAxisDecimalPattern(style.getyAxisDecimalPattern());
+	      
+	      
 	      XChartStatBarChartBuilder builder = XChartStatBarChartBuilder
 	      	.from(result)
 	      	.setAutoRange(true);

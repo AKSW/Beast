@@ -181,6 +181,7 @@ public class XChartStatBarChartProcessor {
             boolean autoRange,
             boolean isErrorBarsEnabled) {
 
+    	boolean logarithmic = chart.getStyler().isYAxisLogarithmic();
 //	    MergeStrategy<C> ms = new MergeStrategy<>();
 //	    ms.setMergeEleCmp(StringPrettyComparator::doCompare);
 //	    ms.setMergeStrategy(MergeStrategy.MIX);
@@ -219,6 +220,11 @@ public class XChartStatBarChartProcessor {
         	Number value = (Number)valueAccessor.apply(r);
         	Number errP = errorAccessor == null ? null : (Number)errorAccessor.apply(r);
         	
+        	double eps = 0.00001;
+        	if(logarithmic && Math.abs(value.doubleValue()) < eps) {
+        		value = eps;
+        	}
+        	
             double errorBar = 0.0;
             if(errP != null) {
                 //errorBar = Math.abs(errP.getDouble());
@@ -231,6 +237,11 @@ public class XChartStatBarChartProcessor {
 
                 double vmin = v - errorBar;
                 double vmax = v + errorBar;
+                
+                
+                if(logarithmic && Math.abs(vmin) < eps) {
+                	vmin = eps;
+                }
                 
                 min = min == null ? vmin : Math.min(min, vmin);
                 max = max == null ? vmax : Math.max(max, vmax);
