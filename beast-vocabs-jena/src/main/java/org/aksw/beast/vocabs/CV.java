@@ -21,6 +21,12 @@ public class CV {
 
     public static final Resource DataItem = resource("DataItem");
 
+    public static final Property sliceProperty = property("sliceProperty");
+    
+    // TODO series has 3 overleads - separate them
+    // - it connects a series spec to a chart resource
+    // - it denotes the series in the transformed dataset which serves as input to the chart
+    // - it denotes a constant series within a series spec
     public static final Property series = property("series");
     public static final Property category = property("category");
     public static final Property value = property("value");
