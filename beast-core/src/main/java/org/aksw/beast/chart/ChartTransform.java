@@ -137,6 +137,13 @@ public class ChartTransform {
             // TODO We could send a select query to the server, and instantiate the template on the client side
             // this would reduce network traffic
             
+            if(series.getSliceTypes() != null && !series.getSliceTypes().isEmpty()) {
+	            // TODO Conjunction or Union semantics for multiple values?
+            	for(Node sliceType : series.getSliceTypes()) {
+	            	attr.add(new Triple(Vars.s, RDF.type.asNode(), sliceType));
+	            }
+            }
+            
             if(seriesNode.isVariable()) {
             	attr.add(new Triple(Vars.s, NodeFactory.createURI(Optional.ofNullable(series.getSeriesProperty()).orElse(CV.series.getURI())), seriesNode));
             }

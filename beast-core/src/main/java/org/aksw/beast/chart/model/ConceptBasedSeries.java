@@ -44,6 +44,9 @@ public class ConceptBasedSeries {
 	@Iri("cv:sliceProperty")
 	protected List<Node> sliceProperties;
 	
+	@Iri("cv:sliceType")
+	protected List<Node> sliceTypes;
+	
 //	public String getConcept() {
 //		return concept;
 //	}
@@ -58,6 +61,14 @@ public class ConceptBasedSeries {
 
 	public void setSeriesProperty(String seriesProperty) {
 		this.seriesProperty = seriesProperty;
+	}
+
+	public List<Node> getSliceTypes() {
+		return sliceTypes;
+	}
+
+	public void setSliceTypes(List<Node> sliceTypes) {
+		this.sliceTypes = sliceTypes;
 	}
 
 	public String getCategoryProperty() {
