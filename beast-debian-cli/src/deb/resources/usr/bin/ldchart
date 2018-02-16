@@ -1,4 +1,0 @@
-#!/bin/sh
-
-java -cp "/usr/share/lib/beast-cli/beast-cli.jar" org.aksw.beast.cli.MainBeastChart "$@"
-
