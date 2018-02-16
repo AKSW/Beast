@@ -177,7 +177,8 @@
 			<dependency>
 				<groupId>de.erichseifert.vectorgraphics2d</groupId>
 				<artifactId>VectorGraphics2D</artifactId>
-				<version>0.12</version>
+				<!-- NOTE Versions 0.12 and 0.13 are not compatible with xchart 3.5.0 -->
+				<version>0.11</version>
 			</dependency>
 
 
