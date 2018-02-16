@@ -40,11 +40,24 @@ eg:exp1-series
 ```
 
 Charts can be rendered using the class [`org.aksw.beast.cli.MainBeastChart`](beast-cli/src/main/java/org/aksw/beast/cli/MainBeastChart.java).
-Installing the beast debian package gives you the convenient `ldchart` command, which invokes the main class for rendering charts.
+Installing the beast debian package gives you the convenient `ldcharts` command, which invokes the main class for rendering charts.
 
 ```bash
 cd beast-core/src/test/resources
-ldchart statistical-data.ttl
+ldcharts statistical-data.ttl
+```
+
+
+```bash
+Usage [Options] file(s)
+
+Option                 Description
+------                 -----------
+--png                  Output charts in png format (Default if no other format is given)
+--svg                  Output charts in svg format
+--jgp                  Output charts in jpg format
+--gui                  Display charts in a window
+-o, --output <String>  Output folder
 ```
 
 ![LDChartScreenshot](docs/images/2018-02-10-ldchart-screenshot.png)
