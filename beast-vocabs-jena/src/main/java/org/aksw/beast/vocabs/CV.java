@@ -19,6 +19,10 @@ public class CV {
     public static Resource resource(String localName) { return ResourceFactory.createResource(ns + localName); }
     public static Property property(String localName) { return ResourceFactory.createProperty(ns + localName); }
 
+    public static final Resource StatisticalBarChart = resource("StatisticalBarChart");
+    public static final Resource ConceptBasedSeries = resource("ConceptBasedSeries");
+    
+    
     public static final Resource DataItem = resource("DataItem");
 
     public static final Property sliceProperty = property("sliceProperty");

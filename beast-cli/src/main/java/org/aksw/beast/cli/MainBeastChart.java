@@ -35,7 +35,7 @@ public class MainBeastChart {
 
     protected OptionParser parser = new OptionParser();
 
-    protected OptionSpec<?> pngOs;    
+    protected OptionSpec<?> pngOs;
     protected OptionSpec<?> svgOs;
     protected OptionSpec<?> jgpOs;    
     protected OptionSpec<?> guiOs;

@@ -11,8 +11,8 @@ class ModularAttributeAccessorGeneric<R, T>
 		this.valueAccessor = valueAccessor;
 	}
 
-	public void setLabelAcessor(Function<? super T, ?> labelAcessor) {
-		this.labelAccessor = labelAcessor;
+	public void setLabelAcessor(Function<? super T, ?> labelAccessor) {
+		this.labelAccessor = labelAccessor;
 	}
 
 	public void setValueArranger(Function<Set<? extends T>, List<T>> valueArranger) {

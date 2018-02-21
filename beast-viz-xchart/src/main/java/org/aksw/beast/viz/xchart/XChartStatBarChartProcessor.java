@@ -207,6 +207,8 @@ public class XChartStatBarChartProcessor {
         Double min = chart.getStyler().getYAxisMin();
         Double max = chart.getStyler().getYAxisMax();
 
+    	double eps = 0.00001;
+
         for(R r : seriesData) {
         	S s = seriesAccessor.getValue(r);
         	C x = categoryAccessor.getValue(r);
@@ -220,7 +222,6 @@ public class XChartStatBarChartProcessor {
         	Number value = (Number)valueAccessor.apply(r);
         	Number errP = errorAccessor == null ? null : (Number)errorAccessor.apply(r);
         	
-        	double eps = 0.00001;
         	if(logarithmic && Math.abs(value.doubleValue()) < eps) {
         		value = eps;
         	}
@@ -314,6 +315,7 @@ public class XChartStatBarChartProcessor {
 
         if(autoRange) {
             if(min != null) {
+            	min = logarithmic ? Math.min(Math.abs(min), eps) : min;
                 min = Math.pow(10, Math.floor(Math.log10(min)));
             }
 
