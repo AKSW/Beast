@@ -13,8 +13,9 @@ import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
 import org.knowm.xchart.CategoryChart;
 import org.knowm.xchart.CategoryChartBuilder;
-import org.knowm.xchart.style.CategoryStyler;
+import org.knowm.xchart.style.AxesChartStyler;
 import org.knowm.xchart.style.Styler.LegendPosition;
+import org.knowm.xchart.style.Styler.TextAlignment;
 
 
 public class ChartModelConfigurerXChart {
@@ -35,47 +36,50 @@ public class ChartModelConfigurerXChart {
 
 	public static CategoryChart toChart(Model dataModel, StatisticalBarChart chartModel) {
 	      CategoryChart result = new CategoryChartBuilder()
-	              .width(chartModel.getWidth())
-	              .height(chartModel.getHeight())
-	              .title(chartModel.getTitle())
-	              .xAxisTitle(chartModel.getxAxisTitle())
-	              .yAxisTitle(chartModel.getyAxisTitle())
-	              .build();
+		//XYChart result = new XYChartBuilder()
+			.width(chartModel.getWidth())
+			.height(chartModel.getHeight())
+			.title(chartModel.getTitle())
+			.xAxisTitle(chartModel.getxAxisTitle())
+			.yAxisTitle(chartModel.getyAxisTitle())
+			.build();
 
-	      
-	      CategoryStyler styler = result.getStyler();
-	      ChartStyle style = chartModel.getStyle();
+        
+	    //CategoryStyler styler = result.getStyler();
+		AxesChartStyler styler = result.getStyler();
+		ChartStyle style = chartModel.getStyle();
 	      
 
-	      applyIfPresent(style::getyAxisDecimalPattern, styler::setYAxisDecimalPattern);
-	      applyIfPresent(style::getLegendPosition, str -> styler.setLegendPosition(LegendPosition.valueOf(str)));
-	      applyIfPresent(style::getxAxisLabelRotation, v -> { styler.setXAxisLabelRotation(v.intValue()); });
-	      applyIfPresent(style::isyAxisLogarithmic, styler::setYAxisLogarithmic);
-	      applyIfPresent(style::getyAxisDecimalPattern, styler::setYAxisDecimalPattern);
+	    applyIfPresent(style::getyAxisDecimalPattern, styler::setYAxisDecimalPattern);
+        applyIfPresent(style::getLegendPosition, str -> styler.setLegendPosition(LegendPosition.valueOf(str)));
+	    applyIfPresent(style::getxAxisLabelRotation, v -> { styler.setXAxisLabelRotation(v.intValue()); });
+        applyIfPresent(style::isyAxisLogarithmic, styler::setYAxisLogarithmic);
+	    applyIfPresent(style::getyAxisDecimalPattern, styler::setYAxisDecimalPattern);
+	    applyIfPresent(style::getyAxisMin, styler::setYAxisMin);
+	    applyIfPresent(style::getyAxisMax, styler::setYAxisMax);	      
+	      	      
+	    //applyIfPresent(style::getyAxisMax, styler::tick);
+	    styler.setXAxisLabelAlignment(TextAlignment.Right);
 	      
+	    XChartStatBarChartBuilder builder = XChartStatBarChartBuilder
+	    	.from(result);
+
+	      	//.setAutoRange(true);
 	      
+	    builder.seriesAccessor().setProperty(CV.series).setLabelPropery(RDFS.label);
+	    builder.categoryAccessor().setProperty(CV.category).setLabelPropery(RDFS.label);
+	    builder.setValueProperty(CV.value);
 	      
-	      styler.setYAxisDecimalPattern(style.getyAxisDecimalPattern());
+	    // Check if there is any error property present in the chart data
+	    boolean isErrorDataPresent = dataModel.listSubjectsWithProperty(CV.error).nextOptional().isPresent();
 	      
+	    if(isErrorDataPresent && !style.isErrorBarsDisabled()) {	      
+	        builder.setErrorProperty(CV.error);
+	    } else {
+	        builder.setErrorProperty(null);
+	    }
 	      
-	      XChartStatBarChartBuilder builder = XChartStatBarChartBuilder
-	      	.from(result)
-	      	.setAutoRange(true);
-	      
-	      builder.seriesAccessor().setProperty(CV.series).setLabelPropery(RDFS.label);
-	      builder.categoryAccessor().setProperty(CV.category).setLabelPropery(RDFS.label);
-	      builder.setValueProperty(CV.value);
-	      
-	      // Check if there is any error property present in the chart data
-	      boolean errorBarsEnabled = dataModel.listSubjectsWithProperty(CV.error).nextOptional().isPresent();
-	      
-	      if(errorBarsEnabled) {	      
-	    	  builder.setErrorProperty(CV.error);
-	      } else {
-	    	  builder.setErrorProperty(null);
-	      }
-	      
-	      builder.setErrorBarsEnabled(errorBarsEnabled);
+	      //builder.setErrorBarsEnabled(isErrorDataPresent);
 	      
 	      
 	      //ConceptBasedSeries seriesSpec = (ConceptBasedSeries)chartModel.getSeries();
@@ -96,15 +100,19 @@ public class ChartModelConfigurerXChart {
 //    	  //AttributeAccessor
 //    	  //PropertyAcc
     	  
-	      Collection<Resource> s = dataModel.listSubjectsWithProperty(RDF.type, CV.DataItem).toSet();
+	    Collection<Resource> s = dataModel.listSubjectsWithProperty(RDF.type, CV.DataItem).toSet();
 	      
 //    	  List<Resource> s = nodes.stream()
 //    			  .map(node -> ModelUtils.convertGraphNodeToRDFNode(node, dataModel))
 //    			  .map(RDFNode::asResource)
 //    			  .collect(Collectors.toList());
 
-    	  builder.processSeries(s);
+    	  builder.processObservations(s);
     	  
+//    	  result.getStyler().setYAxisMax(1.0);
+//    	  result.getStyler().setYAxisLabelAlignment(TextAlignment.Left);
+    	  //result.getStyler().setYAxisTicksVisible(false);
+    	  //result.getStyler().setYAxisLogarithmic(false);
 //	      for(Node node : nodes) {
 //	    	  Resource r = ModelUtils.convertGraphNodeToRDFNode(node, dataModel).asResource();
 //	    	  
@@ -115,6 +123,6 @@ public class ChartModelConfigurerXChart {
 	      
 	      //builder.processSeries(avgs);
 	      
-	      return result;
+	    return result;
 	}
 }

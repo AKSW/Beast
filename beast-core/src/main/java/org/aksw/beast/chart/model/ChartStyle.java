@@ -23,6 +23,17 @@ public class ChartStyle {
 	@IriNs("cv")
 	protected String yAxisDecimalPattern;
 
+	@IriNs("cv")
+	protected Double yAxisMin;
+	
+	@IriNs("cv")
+	protected Double yAxisMax;
+	
+	// If error data is present it will be rendered unless disabled
+	@IriNs("cv")
+	protected boolean errorBarsDisabled;
+	
+
 	public String getLegendPosition() {
 		return legendPosition;
 	}
@@ -63,11 +74,35 @@ public class ChartStyle {
 		this.yAxisDecimalPattern = yAxisDecimalPattern;
 	}
 
+	public Double getyAxisMin() {
+		return yAxisMin;
+	}
+
+	public void setyAxisMin(Double yAxisMin) {
+		this.yAxisMin = yAxisMin;
+	}
+
+	public Double getyAxisMax() {
+		return yAxisMax;
+	}
+
+	public void setyAxisMax(Double yAxisMax) {
+		this.yAxisMax = yAxisMax;
+	}
+
+	public boolean isErrorBarsDisabled() {
+		return errorBarsDisabled;
+	}
+
+	public void setErrorBarsDisabled(boolean errorBarsDisabled) {
+		this.errorBarsDisabled = errorBarsDisabled;
+	}
+
 	@Override
 	public String toString() {
 		return "ChartStyle [legendPosition=" + legendPosition + ", yAxisLogarithmic=" + yAxisLogarithmic
 				+ ", yAxisTicksVisible=" + yAxisTicksVisible + ", xAxisLabelRotation=" + xAxisLabelRotation
-				+ ", yAxisDecimalPattern=" + yAxisDecimalPattern + "]";
+				+ ", yAxisDecimalPattern=" + yAxisDecimalPattern + ", yAxisMin=" + yAxisMin + ", yAxisMax=" + yAxisMax
+				+ ", errorBarsDisabled=" + errorBarsDisabled + "]";
 	}
-	
 }

@@ -40,8 +40,14 @@ import org.apache.jena.sparql.syntax.ElementGroup;
 import org.apache.jena.sparql.syntax.ElementTriplesBlock;
 import org.apache.jena.sparql.syntax.Template;
 import org.apache.jena.vocabulary.RDF;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ChartTransform {
+
+	private static final Logger logger = LoggerFactory.getLogger(ChartTransform.class);
+
+	
 	public static List<Entry<StatisticalBarChart, Model>> transform(Model model) throws Exception {
 		List<Entry<StatisticalBarChart, Model>> result = new ArrayList<>();
 
@@ -66,7 +72,7 @@ public class ChartTransform {
         
         
         for(StatisticalBarChart c : matches) {
-            System.out.println("Matched: " + c);
+        	logger.info("Matched chart: " + c);
             
             //Object series = c.getSeries();
             // Get the URI of the series object, so we can retrieve the constraints based on the slice properties
@@ -168,7 +174,8 @@ public class ChartTransform {
             query.setConstructTemplate(new Template(template));
             
             
-            System.out.println(query);
+            // TODO Probably change to debug
+            logger.info("Generated SPARQL query: " + query);
 
             Model chartDataSet = sparqlService.getQueryExecutionFactory().createQueryExecution(query).execConstruct();
             RDFDataMgr.write(System.out, chartDataSet, RDFFormat.TURTLE_PRETTY);

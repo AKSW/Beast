@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.function.Function;
 
 import org.aksw.beast.chart.accessor.AttributeAccessorRdf;
+import org.aksw.beast.chart.model.ChartStyle;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
@@ -12,6 +13,8 @@ import org.knowm.xchart.CategoryChart;
 
 public class XChartStatBarChartBuilder {
     protected CategoryChart chart;
+    //protected XYChart chart;
+    
     protected Collection<Resource> seriesData;
 
     protected AttributeAccessorRdf seriesAccessor = new AttributeAccessorRdf();
@@ -25,9 +28,12 @@ public class XChartStatBarChartBuilder {
 //    protected Function<Set<RDFNode>, List<RDFNode>> seriesArranger;
 //    protected Function<Set<RDFNode>, List<RDFNode>> xArranger;
 
-    protected boolean autoRange = true;
+//    protected boolean autoRange = true;
 	
-    protected boolean isErrorBarsEnabled = false;
+//    protected boolean isErrorBarsEnabled = false;
+    //protected boolean isErrorBarsDisabled = false;
+  
+    protected ChartStyle style = new ChartStyle();
     
     public static XChartStatBarChartBuilder from(CategoryChart chart) {
     	XChartStatBarChartBuilder result = new XChartStatBarChartBuilder();
@@ -39,12 +45,21 @@ public class XChartStatBarChartBuilder {
     public CategoryChart getChart() {
 		return chart;
 	}
+
+//    public XYChart getChart() {
+//		return chart;
+//	}
 	
 	public XChartStatBarChartBuilder setChart(CategoryChart chart) {
 		this.chart = chart;
 		return this;
 	}
-	
+
+//	public XChartStatBarChartBuilder setChart(XYChart chart) { //CategoryChart chart) {
+//	this.chart = chart;
+//	return this;
+//}
+
 	public Collection<Resource> getSeriesData() {
 		return seriesData;
 	}
@@ -76,7 +91,7 @@ public class XChartStatBarChartBuilder {
 	}
 
 	public XChartStatBarChartBuilder setErrorProperty(Property property) {
-		setErrorAccessor(r -> r.asResource().getRequiredProperty(property).getLiteral().getValue());
+		setErrorAccessor(property == null ? null : r -> r.asResource().getRequiredProperty(property).getLiteral().getValue());
 		return this;
 	}
 
@@ -134,62 +149,49 @@ public class XChartStatBarChartBuilder {
 //		return this;
 //	}
 //	
-	public boolean isAutoRange() {
-		return autoRange;
+//	public boolean isAutoRange() {
+//		return autoRange;
+//	}
+//	
+//	public XChartStatBarChartBuilder setAutoRange(boolean autoRange) {
+//		this.autoRange = autoRange;
+//		return this;
+//	}
+//
+//	public boolean isErrorBarsEnabled() {
+//		return isErrorBarsEnabled;
+//	}
+//
+//	public XChartStatBarChartBuilder setErrorBarsEnabled(boolean isErrorBarsEnabled) {
+//		this.isErrorBarsEnabled = isErrorBarsEnabled;
+//		return this;
+//	}
+
+	public ChartStyle getStyle() {
+		return style;
 	}
+
+	public void setStyle(ChartStyle style) {
+		this.style = style;
+	}
+
 	
-	public XChartStatBarChartBuilder setAutoRange(boolean autoRange) {
-		this.autoRange = autoRange;
-		return this;
-	}
+	
+	
+	public XChartStatBarChartBuilder processObservations(Collection<Resource> observations) {
 
-	public boolean isErrorBarsEnabled() {
-		return isErrorBarsEnabled;
-	}
-
-	public XChartStatBarChartBuilder setErrorBarsEnabled(boolean isErrorBarsEnabled) {
-		this.isErrorBarsEnabled = isErrorBarsEnabled;
-		return this;
-	}
-
-	public XChartStatBarChartBuilder processSeries(Collection<Resource> seriesData) {
+		IndexedStatisticalCategoryDataset<RDFNode, RDFNode> dataset = XChartStatBarChartProcessor.createDatasetFromObservations(
+				observations,
+				seriesAccessor,
+				categoryAccessor,				
+				valueAccessor,
+				errorAccessor);
+				
+		IndexedStatisticalCategoryDataset.toCsv(dataset);
 		
-//		if(seriesToLabel == null) {
-//			seriesToLabel = (r) -> r.asResource().getProperty(RDFS.label).getString();
-//		}
-//		
-//		if(xToLabel == null) {
-//			// Return the workload's label
-//			xToLabel = (r) -> r.asResource().getProperty(RDFS.label).getString();
-//		}
-		
-		XChartStatBarChartProcessor.addSeries(
-			chart,
-			seriesData,
-			seriesAccessor,
-			categoryAccessor,
-			
-			valueAccessor,
-			errorAccessor,
-			
-			autoRange,
-			isErrorBarsEnabled			
-	    );		
-//		XChartStatBarChartProcessor.addSeries(
-//				chart,
-//				seriesData,
-//				new AttributeAccessorRdf().setProperty(CV.series).setLabelAcessor(seriesToLabel)
-//				seriesToLabel,
-//				xToLabel,
-//				seriesArranger,
-//				xArranger,
-//				autoRange,
-//				isErrorBarsEnabled
-//				);
+		XChartStatBarChartProcessor.configureChartFromDataset(chart, dataset);
 		
 		return this;
 	}
-
-    
     
 }

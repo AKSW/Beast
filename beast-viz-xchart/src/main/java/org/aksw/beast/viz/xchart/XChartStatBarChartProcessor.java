@@ -1,15 +1,12 @@
 package org.aksw.beast.viz.xchart;
 
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -159,173 +156,270 @@ public class XChartStatBarChartProcessor {
 //    			xArranger
 //    	);
 //    }
+    
 
-    public static <R, S, C, V, E> void addSeries(
-            CategoryChart chart,
-            Collection<R> seriesData,
+    public static final double eps = 0.00001;
 
+    public static <R, S, C, V, E> IndexedStatisticalCategoryDataset<S, C> createDatasetFromObservations(
+            Collection<R> observations,
             AttributeAccessor<R, S> seriesAccessor,
             AttributeAccessor<R, C> categoryAccessor,
             Function<? super R, ?> valueAccessor,
-            Function<? super R, ?> errorAccessor,
-//
-//            
-//            Function<? super S, String> seriesToLabel,
-//            Function<? super C, ?> xToLabel,
-//            Function<Set<S>, List<S>> seriesArranger,
-//            Function<Set<C>, List<C>> xArranger,
-//
-//          Function<? super R, S> getSeries,
-//          Function<? super R, C> getCategory,
-            
-            boolean autoRange,
-            boolean isErrorBarsEnabled) {
+            Function<? super R, ?> errorAccessor
+        ) {
 
-    	boolean logarithmic = chart.getStyler().isYAxisLogarithmic();
-//	    MergeStrategy<C> ms = new MergeStrategy<>();
-//	    ms.setMergeEleCmp(StringPrettyComparator::doCompare);
-//	    ms.setMergeStrategy(MergeStrategy.MIX);
-//	    DimensionArranger<C> arr = new DimensionArranger<>(ms);
-//
-//	      xArranger = xArranger != null ? xArranger : arr;
-//	      
-//	      
-//		    MergeStrategy<S> msS = new MergeStrategy<>();
-//		    msS.setMergeEleCmp(StringPrettyComparator::doCompare);
-//		    msS.setMergeStrategy(MergeStrategy.MIX);
-//		    DimensionArranger<S> arrS = new DimensionArranger<>(msS);
-//
-//	      seriesArranger = seriesArranger != null ? seriesArranger : arrS;
+    	boolean hasErrorValues = errorAccessor != null;
+    	
+    	IndexedStatisticalCategoryDataset<S, C> result = new IndexedStatisticalCategoryDataset<>(hasErrorValues);
 
-        // Collect the extensions of the series and category dimensions
-        // and index data points
-        Set<S> seriesExt = new LinkedHashSet<>();
-        Set<C> xExt = new LinkedHashSet<>();
-        Map<S, Map<C, Entry<Number, Number>>> seriesToCatToCell = new HashMap<>();
-
-        //boolean hasErrorBars = true;
-        Double min = chart.getStyler().getYAxisMin();
-        Double max = chart.getStyler().getYAxisMax();
-
-    	double eps = 0.00001;
-
-        for(R r : seriesData) {
+        for(R r : observations) {
         	S s = seriesAccessor.getValue(r);
         	C x = categoryAccessor.getValue(r);
         	
-//            RDFNode s = r.getProperty(CV.series).getObject();
-//            RDFNode x = r.getProperty(CV.category).getObject();
-
-//            Number value = (Number)r.getProperty(CV.value).getObject().asLiteral().getValue();
-//            Statement errP = r.getProperty(CV.stDev);
-
         	Number value = (Number)valueAccessor.apply(r);
-        	Number errP = errorAccessor == null ? null : (Number)errorAccessor.apply(r);
-        	
-        	if(logarithmic && Math.abs(value.doubleValue()) < eps) {
-        		value = eps;
+        	value = value == null || Double.isNaN(value.doubleValue()) ? null : value;        	
+
+        	Number error = errorAccessor == null ? null : (Number)errorAccessor.apply(r);
+        	error = error == null || Double.isNaN(error.doubleValue()) ? null : error;        	
+
+        	if(value != null) {
+        		result.putValue(s, x, value);
         	}
         	
-            double errorBar = 0.0;
-            if(errP != null) {
-                //errorBar = Math.abs(errP.getDouble());
-            	errorBar = Math.abs(errP.doubleValue());
-            }
-
-            
-            if(value instanceof Number) {
-                double v = ((Number)value).doubleValue();
-
-                double vmin = v - errorBar;
-                double vmax = v + errorBar;
-                
-                
-                if(logarithmic && Math.abs(vmin) < eps) {
-                	vmin = eps;
-                }
-                
-                min = min == null ? vmin : Math.min(min, vmin);
-                max = max == null ? vmax : Math.max(max, vmax);
-            }
-
-
-            seriesToCatToCell
-                .computeIfAbsent(s, (_s) -> new HashMap<>())
-                .put(x, new SimpleEntry<>(value, errorBar));
-
-            seriesExt.add(s);
-            xExt.add(x);
+        	if(error != null) {
+        		result.putError(s, x, error);
+        	}
         }
 
-//        System.out.println(seriesToCatToCell);
+        Set<S> serieses = new LinkedHashSet<>(seriesAccessor.arrange(result.getSerieses()));
+        result.setSerieses(serieses);
+        
+        Set<C> categories = new LinkedHashSet<>(categoryAccessor.arrange(result.getCategories()));
+        result.setCategories(categories);
+        
 
-        // Arrange the dimensions
-        List<S> series = seriesAccessor.arrange(seriesExt);
-//        List<S> series = seriesArranger == null
-//                ? new ArrayList<>(seriesExt)
-//                : seriesArranger.apply(seriesExt);
+        for(C category : categories) {
+        	String label = "" + categoryAccessor.getLabel(category);
+        	label = StringUtils.isEmpty(label) ? "(no category label)" : label;
+        	result.setCategoryLabel(category, label);
+        }
+        
+        for(S series : serieses) {
+        	String label = "" + seriesAccessor.getLabel(series);
+        	label = StringUtils.isEmpty(label) ? "(no category label)" : label;
+        	result.setSeriesLabel(series, label);
+        }
+
+        return result;
+    }
+    
+    public static Double combinedMinValue(Number value, Number error) {
+    	Double result = null;
+    	if(value != null) {
+    		double v = value.doubleValue();
+
+    		result = error == null
+    			? v
+    			: v - Math.abs(error.doubleValue());
+    	}
+    	
+    	return result;
+    }
+
+    public static Double combinedMaxValue(Number value, Number error) {
+    	Double result = null;
+    	if(value != null) {
+    		double v = value.doubleValue();
+
+    		result = error == null
+    			? v
+    			: v + Math.abs(error.doubleValue());
+    	}
+    	
+    	return result;
+    }
+
+    public static <S, C> void inPlaceSetMissingValues(IndexedStatisticalCategoryDataset<S, C> dataset) {
+    	for(S s : dataset.getSerieses()) {
+    		for(C c : dataset.getCategories()) {
+
+    			Number value = dataset.getValue(s, c);
+    			if(value == null) {
+    				dataset.putValue(s, c, 0.0);
+    			}
+    			
+    			Number error = dataset.getError(s, c);
+    			if(error == null && dataset.hasErrors()) {
+    				dataset.putError(s, c, 0.0);
+    			}
+    		}
+    	}
+    }
+
+    public static <S, C> void inPlaceAdjustForLogarithmicChart(IndexedStatisticalCategoryDataset<S, C> dataset) {    	    	
+    	for(S s : dataset.getSerieses()) {
+    		for(C c : dataset.getCategories()) {
+
+    			Number value = dataset.getValue(s, c);
+    			Number error = dataset.getError(s, c);
+
+    			if(value != null) {    			
+    				double v = value.doubleValue();                
+                
+            		if(Math.abs(v) < eps) {
+            			System.out.println("[WARN] Adjusted value " + value + " to " + eps);
+            			v = eps;
+            			
+            			dataset.putValue(s, c, v);
+            		}
+            		
+            		// If combining the value with the error is below zero,
+            		// adjust the error bar to touch the eps value
+            		// TODO Print out a warning as this may give a false impression
+            		if(error != null) {
+	            		double e = error.doubleValue();
+	            		if(v - e < eps) {
+	            			e = v - eps;
+	            			System.out.println("[WARN] Adjusted error " + error + " to " + e);
+	            		}
+	            		
+	            		dataset.putError(s, c, e);
+            		}
+                }
+            }
+    	}
+    }
+
+// Adjust chart minimum!!
+//	if(Math.abs(vmin) < eps) {
+//	vmin = eps;
+//}
+    
+//            double vmin = v - errorBar;
+//            double vmax = v + errorBar;
 //
-        List<C> xs = categoryAccessor.arrange(xExt);
-//        List<C> xs = xArranger == null
-//                ? new ArrayList<>(xExt)
-//                : xArranger.apply(xExt);
+//            
+//            dataYMin = dataYMin == null ? vmin : Math.min(dataYMin, vmin);
+//            dataYMax = dataYMax == null ? vmax : Math.max(dataYMax, vmax);
+//
+//            seriesToCategoryToValue.put(s, x, value);
+//            seriesToCategoryToError.put(s, x, errorBar);
+//
+////            seriesToCatToCell
+////                .computeIfAbsent(s, (_s) -> new HashMap<>())
+////                .put(x, new SimpleEntry<>(value, errorBar));
+//
+//            seriesExt.add(s);
+//            categoryExt.add(x);
+//    			
+//    		}
+//    	}
+//    }
+    
+    
+    public static <S, C> void configureChartFromDataset(
+            CategoryChart chart,
+            IndexedStatisticalCategoryDataset<S, C> dataset) {
+        
+		dataset = IndexedStatisticalCategoryDataset.copy(dataset);
 
-        Entry<Number, Number> defaultE = new SimpleEntry<>(0.0, 0.0);
+		inPlaceSetMissingValues(dataset);
+        // TODO Make this chart configuration separate from the dataset extraction
+
+    	
+    	boolean isYAxisLogarithmic = chart.getStyler().isYAxisLogarithmic();
+
+    	if(isYAxisLogarithmic) {
+    		inPlaceAdjustForLogarithmicChart(dataset);
+    	}
+
+    	configureChartFromDatasetRaw(chart, dataset);
+    }
+    
+    public static <S, C> void configureChartFromDatasetRaw(
+            CategoryChart chart,
+            IndexedStatisticalCategoryDataset<?, ?> dataset) {
+
+    	boolean isYAxisLogarithmic = chart.getStyler().isYAxisLogarithmic();
+
+        Double yMin = chart.getStyler().getYAxisMin();
+        Double yMax = chart.getStyler().getYAxisMax();
 
         
-        int n = xs.size();
-        List<Object> xLabels = xs.stream()
-                //getValue(x, xToLabel)
-                //.map(x -> "" + xToLabel.apply(x))
-        		.map(x -> "" + categoryAccessor.getLabel(x))
-                .map(x -> StringUtils.isEmpty(x) ? "(no category label)" : x)
-                .collect(Collectors.toList());
+//    	if(isYAxisLogarithmic && yMin == null || Math.abs(yMin.doubleValue()) < eps) {
+//    		yMin = eps;
+//    		chart.getStyler().setYAxisMin(yMin);
+//    		//vmin = eps;
+//    	}
+        
+        boolean isAutoRangeYMin = yMin == null;
+        boolean isAutoRangeYMax = yMax == null;
 
-        for(S s : series) {
-            Map<C, Entry<Number, Number>> catToCell = seriesToCatToCell.getOrDefault(s, Collections.emptyMap());
+        Double dataYMin = IndexedStatisticalCategoryDataset.minCombinedValue(dataset).map(Number::doubleValue).orElse(null);
+        Double dataYMax = IndexedStatisticalCategoryDataset.maxCombinedValue(dataset).map(Number::doubleValue).orElse(null);
+        
 
-            //String seriesName = getLabel(s, seriesToLabel);
-            String seriesName = "" + seriesAccessor.getLabel(s); //seriesToLabel.apply(s);
+
+        if(isAutoRangeYMin && dataYMin != null) {
+        	if(isYAxisLogarithmic) {        		
+        		yMin = Math.min(Math.abs(dataYMin), eps);
+        		yMin = Math.pow(10, Math.floor(Math.log10(yMin)));
+        	} else {
+        		yMin = dataYMin;
+        	}
+        }
+
+        yMax = isAutoRangeYMax && dataYMax != null ? dataYMax : yMax;
+        
+        System.out.println("yMin=" + yMin + ", yMax=" + yMax);
+        System.out.println("dataYMin=" + dataYMin + ", dataYMax=" + dataYMax);
+        
+        
+        
+        // Charts seemingly look better without adjusting the maximum to the next label
+        if(isAutoRangeYMax) {
+            //max = Math.pow(10, Math.floor(Math.log10(max)));
+        }
+
+	    if(isAutoRangeYMin && yMin != null) {
+	        chart.getStyler().setYAxisMin(yMin);
+	    }
+	    
+	    if(isAutoRangeYMax && yMax != null) {
+	        chart.getStyler().setYAxisMax(yMax);
+	    }
+
+        int n = dataset.getCategories().size();
+
+        List<String> categoryLabels = dataset.getCategories().stream()
+        		.map(category -> Optional.ofNullable(dataset.getCategoryLabel(category)).orElse("(no label)"))
+        		.collect(Collectors.toList());
+        
+        for(Object series : dataset.getSerieses()) {
+        	String seriesLabel = Optional.ofNullable(dataset.getSeriesLabel(series)).orElse("(no label)");
             
-            if(StringUtils.isEmpty(seriesName)) {
-            	seriesName = "no series name";
-            }
             
-            List<Number> yData = new ArrayList<>(n);
-            List<Number> errorBars = isErrorBarsEnabled ? new ArrayList<>(n) : null;
+            List<Number> valueData = new ArrayList<>(n);
+            List<Number> errorData = dataset.hasErrors() ? new ArrayList<>(n) : null;
 
-            for(C x : xs) {
-                Entry<Number, Number> e = catToCell.getOrDefault(x, defaultE);
+            for(Object category : dataset.getCategories()) {
+            	Number value = dataset.getValue(series, category);
+            	Number error = dataset.getError(series, category);
 
-                yData.add(e.getKey());
-                if(errorBars != null) {
-                    errorBars.add(e.getValue());
+                valueData.add(value);
+                if(errorData != null) {
+                    errorData.add(error);
                 }
             }
 
 //            System.out.println(yData);
 
-            if(isErrorBarsEnabled) {
-                chart.addSeries(seriesName, xLabels, yData, errorBars);
+            if(errorData != null) {
+                chart.addSeries(seriesLabel, categoryLabels, valueData, errorData);
             } else {
-                chart.addSeries(seriesName, xLabels, yData);
+                chart.addSeries(seriesLabel, categoryLabels, valueData);
             }
 
-        }
-
-        if(autoRange) {
-            if(min != null) {
-            	min = logarithmic ? Math.min(Math.abs(min), eps) : min;
-                min = Math.pow(10, Math.floor(Math.log10(min)));
-            }
-
-            // Charts seemingly look better without adjusting the maximum to the next label
-            if(max != null) {
-                //max = Math.pow(10, Math.floor(Math.log10(max)));
-            }
-
-            chart.getStyler().setYAxisMin(min);
-            chart.getStyler().setYAxisMax(max);
         }
     }
 

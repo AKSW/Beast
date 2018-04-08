@@ -17,10 +17,10 @@ import org.apache.xerces.util.URI;
 import org.apache.xerces.util.URI.MalformedURIException;
 import org.knowm.xchart.BitmapEncoder;
 import org.knowm.xchart.BitmapEncoder.BitmapFormat;
-import org.knowm.xchart.CategoryChart;
 import org.knowm.xchart.SwingWrapper;
 import org.knowm.xchart.VectorGraphicsEncoder;
 import org.knowm.xchart.VectorGraphicsEncoder.VectorGraphicsFormat;
+import org.knowm.xchart.internal.chartpart.Chart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +28,16 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 
+/**
+ * Command line frontend for the ldcharts tool.
+ * 
+ * TODO Add option whether to place output files relative to input file or working directory
+ * TODO Create a bean class to hold the cli configuration
+ * 
+ * 
+ * @author raven Feb 22, 2018
+ *
+ */
 public class MainBeastChart {
 	
     private static final Logger logger = LoggerFactory.getLogger(MainBeastChart.class);
@@ -146,7 +156,9 @@ public class MainBeastChart {
     	List<Entry<StatisticalBarChart, Model>> chartSpecs = ChartTransform.transform(model);
     	
     	for(Entry<StatisticalBarChart, Model> chartSpec : chartSpecs) {
-            CategoryChart xChart = ChartModelConfigurerXChart.toChart(chartSpec.getValue(), chartSpec.getKey());
+    		
+
+            Chart<?, ?> xChart = ChartModelConfigurerXChart.toChart(chartSpec.getValue(), chartSpec.getKey());
             
             String baseFileName = xChart.getTitle();
 
@@ -168,7 +180,7 @@ public class MainBeastChart {
             }
             
             if(isGuiOutputEnabled) {
-                new SwingWrapper<CategoryChart>(xChart).displayChart();
+                new SwingWrapper<>(xChart).displayChart();
             }            
     	}
     	
