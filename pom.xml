@@ -10,6 +10,7 @@
 
 	<packaging>pom</packaging>
 
+        <name>BEAST</name>
 	<description>BEAST - Benchmarking, Evaluation, and Analysis Stack</description>
 	<url>https://aksw.github.io/Beast/</url>
 
