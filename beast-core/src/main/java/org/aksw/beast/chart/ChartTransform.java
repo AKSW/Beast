@@ -91,7 +91,7 @@ public class ChartTransform {
             ResourceShape shape = rsb.getResourceShape();
 
             Graph data = MapServiceResourceShape.createLookupService(sparqlService.getQueryExecutionFactory(), shape)
-            		.apply(Collections.singleton(iri)).get(iri);
+            		.fetchMap(Collections.singleton(iri)).get(iri);
             
             Model constraintModel = ModelFactory.createModelForGraph(data);
             RDFDataMgr.write(System.out, constraintModel, RDFFormat.TURTLE_PRETTY);
