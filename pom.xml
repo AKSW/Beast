@@ -250,14 +250,13 @@
 			<plugin>
 				<groupId>com.amashchenko.maven.plugin</groupId>
 				<artifactId>gitflow-maven-plugin</artifactId>
-				<version>1.5.1</version>
+				<version>1.9.0</version>
 				<configuration>
 					<gitFlowConfig>
 						<versionTagPrefix>v</versionTagPrefix>
 					</gitFlowConfig>
 				</configuration>
 			</plugin>
-
 
 			<!-- That's a sledge hammer solution - but at least it works ... -->
 			<plugin>
