@@ -4,6 +4,65 @@ Beast is a lightweight framework that makes it easy to build RDF-in/RDF-out work
 For instance, if you want to execute a set of tasks described in RDF, Beast easily lets you create workflows that execute them as often as desired and record 
 any measurements directly in  RDF using the vocabulary of your choice (such as DataCube).
 
+## Charts in RDF - the Chart Vocabulary
+
+The chart vocabulary enables embedding information about which charts to render from a dataset directly in RDF.
+The full dataset example is [here](beast-core/src/test/resources/statistical-data.ttl).
+
+```turtle
+eg:exp1
+  a cv:StatisticalBarChart ;
+  rdfs:label "Performance Histogram" ;
+  cv:xAxisTitle "Workload" ;
+  cv:yAxisTitle "Time (s)" ;
+  cv:width 1650 ;
+  cv:height 1050 ;
+  cv:style eg:exp1-style ;
+  cv:series eg:exp1-series ;
+  .
+
+eg:exp1-style
+  a cv:ChartStyle ;
+  cv:legendPosition "InsideNW" ;
+  cv:yAxisLogarithmic true ;
+  cv:yAxisTicksVisible true ;
+  cv:xAxisLabelRotation 45 ;
+  cv:yAxisDecimalPattern "###,###,###,###,###.#####" ;
+  .
+        
+eg:exp1-series 
+  a cv:ConceptBasedSeries ;
+  cv:sliceProperty bsbm:experimentId ;
+  cv:series "some-triple-store" ;
+  cv:valueProperty <http://bsbm.org/avgQet> ;
+  bsbm:experimentId eg:bsbm-exp1 ;
+  .
+```
+
+Charts can be rendered using the class [`org.aksw.beast.cli.MainBeastChart`](beast-cli/src/main/java/org/aksw/beast/cli/MainBeastChart.java).
+Installing the beast debian package gives you the convenient `ldcharts` command, which invokes the main class for rendering charts.
+
+```bash
+cd beast-core/src/test/resources
+ldcharts statistical-data.ttl
+```
+
+
+```bash
+Usage [Options] file(s)
+
+Option                 Description
+------                 -----------
+--png                  Output charts in png format (Default if no other format is given)
+--svg                  Output charts in svg format
+--jgp                  Output charts in jpg format
+--gui                  Display charts in a window
+-o, --output <String>  Output folder
+```
+
+![LDChartScreenshot](docs/images/2018-02-10-ldchart-screenshot.png)
+
+
 ## Features
 
 * Construction of Resource-centric Java streams. Hence, plain RDF properties can be attached to resources as part of the stream execution.

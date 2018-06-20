@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<artifactId>beast-viz-xchart</artifactId>
+	<packaging>jar</packaging>
+
+	<parent>
+		<groupId>org.aksw.beast</groupId>
+		<artifactId>beast-parent</artifactId>
+		<version>1.0.0</version>
+	</parent>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>org.aksw.beast</groupId>
+			<artifactId>beast-benchmark</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.knowm.xchart</groupId>
+			<artifactId>xchart</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>de.erichseifert.vectorgraphics2d</groupId>
+			<artifactId>VectorGraphics2D</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+</project>

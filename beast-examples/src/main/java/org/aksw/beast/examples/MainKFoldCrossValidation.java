@@ -43,14 +43,14 @@ public class MainKFoldCrossValidation {
                     (Stream<ResourceEnh>)StreamUtils.zipWithIndex(foldParser.apply(workloadRes).stream())
                     .map(indexed ->
                         ResourceEnh.copyClosure(workloadRes).getModel().createResource().as(ResourceEnh.class)
-                        .addTrait(indexed.getValue())
+                        .addTag(indexed.getValue())
                         .addProperty(RDF.type, QB.Observation)
                         .addLiteral(IV.phase, indexed.getIndex())
                         .as(ResourceEnh.class)))
 
             .peek(phaseRes -> logger.info("Executing phase: "
                         + phaseRes.getProperty(IV.phase).getInt() + ": "
-                        + phaseRes.getTrait(Fold.class).get()))
+                        + phaseRes.getTag(Fold.class).get()))
 
             .repeat(2, IV.run, 1)
             .map(phaseRes -> phaseRes.rename("http://example.org/observation/run{0}-fold{1}", IV.run, IV.phase))

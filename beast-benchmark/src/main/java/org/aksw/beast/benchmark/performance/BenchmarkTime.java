@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -98,6 +99,22 @@ public class BenchmarkTime
         start().create().accept(r, wrapper);
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T> T benchmark(Resource r, Callable<T> t) {
+        Object[] result = new Object[1];
+
+        Runnable wrapper = () -> { try {
+            T tmp = t.call();
+            result[0] = tmp;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } };
+
+        start().create().accept(r, wrapper);
+
+        return (T)result[0];
+    }
+
     public BiConsumer<Resource, Runnable> create() {
         BiConsumer<Resource, Runnable> result = (r, t) -> {
             if (r.getProperty(OWLTIME.numericDuration) != null) {
@@ -117,17 +134,19 @@ public class BenchmarkTime
             } catch (Exception e) {
                 // ex = e;
                 logger.warn("Reporting failed task execution", e);
-                r.addLiteral(LSQ.executionError, "" + e);
+                r.addLiteral(LSQ.execError, "" + e);
 
                 exceptionHandler.accept(r, e);
             }
 
             sw.stop();
             Calendar stopInstant = new GregorianCalendar();
-            Duration duration = Duration.ofNanos(sw.elapsed(TimeUnit.NANOSECONDS));
+            //Duration duration = Duration.ofNanos(sw.elapsed(TimeUnit.NANOSECONDS));
+
+            double durationInSeconds = sw.elapsed(TimeUnit.NANOSECONDS) / 1000000000.0;
 
             r.addLiteral(PROV.endAtTime, stopInstant);
-            r.addLiteral(OWLTIME.numericDuration, duration.get(ChronoUnit.NANOS) / 1000000000.0);
+            r.addLiteral(OWLTIME.numericDuration, durationInSeconds);
 
             try {
                 reportConsumer.accept(r);

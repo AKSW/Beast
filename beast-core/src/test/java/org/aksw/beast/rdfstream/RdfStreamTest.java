@@ -40,19 +40,19 @@ public class RdfStreamTest {
             Resource r = m.createResource("http://foo.bar/baz#" + i);
             r.addProperty(RDF.type, OWL.Class);
             ResourceEnh p = r.as(ResourceEnh.class);
-            p.addTrait("Test " + i);
+            p.addTag("Test " + i);
         }
 
         for(int i = 0; i < 10; ++i) {
             Resource r = m.createResource("http://foo.bar/baz#" + i);
             ResourceEnh p = r.as(ResourceEnh.class);
-            System.out.println(p.getTrait(String.class).orNull());
+            System.out.println(p.getTag(String.class).orNull());
         }
 
         ResourceEnh y = m.getResource("http://foo.bar/baz#1").as(ResourceEnh.class).rename("http://example.org/foo");
         //ResourceUtils.renameResource(m.getResource("http://foo.bar/baz#1"), "http://example.org/foo");
         //ResourceEnh y = m.getResource("http://example.org/foo").as(ResourceEnh.class);
-        System.out.println(y.getTrait(String.class));
+        System.out.println(y.getTag(String.class));
 
 
 

@@ -24,14 +24,22 @@ public class IV {
     public static Property property(String local) { return ResourceFactory.createProperty(ns + local); }
 
     public static final Property warmup = property("warmup");
+    public static final Property skip = property("skip");
 
     public static final Property experiment = property("experiment");
+    public static final Property method = property("method");
+    public static final Property value = property("value");
+    public static final Property assessment = property("assessment");
+
+
     public static final Property thread = property("thread");
     public static final Property job = property("job");
     public static final Property step = property("step");
     public static final Property run = property("run");
     public static final Property phase = property("phase");
     public static final Property cycle = property("cycle");
+
+
 
     // Overall id of an item in a stream
     public static final Property item = property("item");

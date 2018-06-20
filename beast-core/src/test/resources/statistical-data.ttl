@@ -1,0 +1,243 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+@prefix cv: <http://aksw.org/chart-vocab/> .
+@prefix iv: <http://iv.aksw.org/vocab#> .
+@prefix iguana: <http://iguana.aksw.org/ontology#> .
+
+@prefix eg: <http://example.org/> .
+
+@prefix bsbm: <http://bsbm.org/> .
+
+ 
+eg:exp1
+  a cv:StatisticalBarChart ;
+  rdfs:label "Performance Histogram" ;
+  cv:xAxisTitle "Workload" ;
+  cv:yAxisTitle "Time (s)" ;
+  cv:width 1650 ;
+  cv:height 1050 ;
+  cv:style eg:exp1-style ;
+  cv:series eg:exp1-series ;
+  .
+
+eg:exp1-style
+  a cv:ChartStyle ;
+  cv:legendPosition "InsideNW" ;
+  cv:yAxisLogarithmic true ;
+  cv:yAxisTicksVisible true ;
+  cv:xAxisLabelRotation 45 ;
+  cv:yAxisDecimalPattern "###,###,###,###,###.#####" ;
+  .  
+        
+eg:exp1-series 
+  a cv:ConceptBasedSeries ;
+  cv:sliceProperty bsbm:experimentId ;
+  cv:series "some-triple-store" ;
+  cv:valueProperty <http://bsbm.org/avgQet> ;
+  bsbm:experimentId eg:bsbm-exp1 ;
+  .
+
+
+
+<http://bsbm.org/bar>
+        a                               <http://bsbm.org/QueryMixStats> ;
+        bsbm:experimentId eg:bsbm-exp1 ;
+        <http://bsbm.org/actualTotalRuntime>
+                "0.30500000000000005"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/cqet>          "0.30500000000000005"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/maxQueryMixRuntime>
+                "0.30500000000000005"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/minQueryMixRuntime>
+                "0.30500000000000005"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/nrThreads>     "1"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/qmph>          "11803.278688524588"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/queryMixGeometryMean>
+                "0.30500000000000005"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/queryMixRuns>  "1"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/scaleFactor>   "100"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/seed>          "808080"^^<http://www.w3.org/2001/XMLSchema#long> ;
+        <http://bsbm.org/totalRuntime>  "0.30500000000000005"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/warmups>       "0"^^<http://www.w3.org/2001/XMLSchema#int> .
+
+<http://bsbm.org/query-2>
+        a                               <http://bsbm.org/QueryStats> ;
+        bsbm:experimentId eg:bsbm-exp1 ;        
+        <http://bsbm.org/avgQet>        "0.006333333333333334"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/avgResults>    "23.5"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/executeCount>  "6"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/frequency>     "157.89473684210523"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/geometricMean>
+                "0.004886137866186172"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/id>            "2" ;
+        <http://bsbm.org/maxQet>        "0.018"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/maxResults>    "25"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/minQet>        "0.003"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/minResults>    "21"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/numTimeouts>   "0"^^<http://www.w3.org/2001/XMLSchema#int> .
+
+<http://bsbm.org/query-7>
+        a                               <http://bsbm.org/QueryStats> ;
+        bsbm:experimentId eg:bsbm-exp1 ;
+        <http://bsbm.org/avgQet>        "0.002"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/avgResults>    "9.5"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/executeCount>  "4"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/frequency>     "500.0"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/geometricMean>
+                "0.0018612097182041994"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/id>            "7" ;
+        <http://bsbm.org/maxQet>        "0.003"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/maxResults>    "14"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/minQet>        "0.001"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/minResults>    "1"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/numTimeouts>   "0"^^<http://www.w3.org/2001/XMLSchema#int> .
+
+<http://bsbm.org/query-12>
+        a                               <http://bsbm.org/QueryStats> ;
+        bsbm:experimentId eg:bsbm-exp1 ;
+        <http://bsbm.org/avgQet>        "0.002"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/avgResults>    "8.0"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/executeCount>  "1"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/frequency>     "500.0"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/geometricMean>
+                "0.0020000000000000005"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/id>            "12" ;
+        <http://bsbm.org/maxQet>        "0.002"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/maxResults>    "8"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/minQet>        "0.002"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/minResults>    "8"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/numTimeouts>   "0"^^<http://www.w3.org/2001/XMLSchema#int> .
+
+<http://bsbm.org/foo>
+        a                             <http://bsbm.org/BsbmResult> ;
+        <http://bsbm.org/queryMixStats>
+                <http://bsbm.org/bar> ;
+        <http://bsbm.org/queryStats>  <http://bsbm.org/query-9> , <http://bsbm.org/query-8> , <http://bsbm.org/query-2> , <http://bsbm.org/query-3> , <http://bsbm.org/query-7> , <http://bsbm.org/query-1> , <http://bsbm.org/query-11> , <http://bsbm.org/query-5> , <http://bsbm.org/query-4> , <http://bsbm.org/query-12> , <http://bsbm.org/query-10> .
+
+<http://bsbm.org/query-5>
+        a                               <http://bsbm.org/QueryStats> ;
+        bsbm:experimentId eg:bsbm-exp1 ;
+        <http://bsbm.org/avgQet>        "0.063"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/avgResults>    "1.0"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/executeCount>  "2"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/frequency>     "15.873015873015873"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/geometricMean>
+                "0.06184658438426491"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/id>            "5" ;
+        <http://bsbm.org/maxQet>        "0.075"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/maxResults>    "1"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/minQet>        "0.051"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/minResults>    "1"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/numTimeouts>   "0"^^<http://www.w3.org/2001/XMLSchema#int> .
+
+<http://bsbm.org/query-10>
+        a                               <http://bsbm.org/QueryStats> ;
+        bsbm:experimentId eg:bsbm-exp1 ;
+        <http://bsbm.org/avgQet>        "0.0"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/avgResults>    "0.0"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/executeCount>  "2"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/frequency>     "INF"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/geometricMean>
+                "0.0"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/id>            "10" ;
+        <http://bsbm.org/maxQet>        4.9E-324 ;
+        <http://bsbm.org/maxResults>    "0"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/minQet>        "0.0"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/minResults>    "0"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/numTimeouts>   "0"^^<http://www.w3.org/2001/XMLSchema#int> .
+
+<http://bsbm.org/query-3>
+        a                               <http://bsbm.org/QueryStats> ;
+        bsbm:experimentId eg:bsbm-exp1 ;        
+        <http://bsbm.org/avgQet>        "0.012"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/avgResults>    "0.0"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/executeCount>  "1"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/frequency>     "83.33333333333333"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/geometricMean>
+                "0.012000000000000002"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/id>            "3" ;
+        <http://bsbm.org/maxQet>        "0.012"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/maxResults>    "0"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/minQet>        "0.012"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/minResults>    "0"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/numTimeouts>   "0"^^<http://www.w3.org/2001/XMLSchema#int> .
+
+<http://bsbm.org/query-8>
+        a                               <http://bsbm.org/QueryStats> ;
+        bsbm:experimentId eg:bsbm-exp1 ;
+        <http://bsbm.org/avgQet>        "0.0015"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/avgResults>    "1.5"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/executeCount>  "2"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/frequency>     "666.6666666666666"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/geometricMean>
+                "0.0014142135623730952"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/id>            "8" ;
+        <http://bsbm.org/maxQet>        "0.002"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/maxResults>    "2"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/minQet>        "0.001"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/minResults>    "1"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/numTimeouts>   "0"^^<http://www.w3.org/2001/XMLSchema#int> .
+
+<http://bsbm.org/query-1>
+        a                               <http://bsbm.org/QueryStats> ;
+        bsbm:experimentId eg:bsbm-exp1 ;
+        <http://bsbm.org/avgQet>        "0.078"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/avgResults>    "0.0"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/executeCount>  "1"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/frequency>     "12.820512820512821"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/geometricMean>
+                "0.07799999999999999"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/id>            "1" ;
+        <http://bsbm.org/maxQet>        "0.078"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/maxResults>    "0"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/minQet>        "0.078"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/minResults>    "0"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/numTimeouts>   "0"^^<http://www.w3.org/2001/XMLSchema#int> .
+
+<http://bsbm.org/query-11>
+        a                               <http://bsbm.org/QueryStats> ;
+        bsbm:experimentId eg:bsbm-exp1 ;
+        <http://bsbm.org/avgQet>        "0.0"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/avgResults>    "10.0"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/executeCount>  "1"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/frequency>     "INF"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/geometricMean>
+                "0.0"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/id>            "11" ;
+        <http://bsbm.org/maxQet>        4.9E-324 ;
+        <http://bsbm.org/maxResults>    "10"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/minQet>        "0.0"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/minResults>    "10"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/numTimeouts>   "0"^^<http://www.w3.org/2001/XMLSchema#int> .
+
+<http://bsbm.org/query-4>
+        a                               <http://bsbm.org/QueryStats> ;
+        bsbm:experimentId eg:bsbm-exp1 ;        
+        <http://bsbm.org/avgQet>        "0.006"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/avgResults>    "0.0"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/executeCount>  "1"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/frequency>     "166.66666666666666"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/geometricMean>
+                "0.006000000000000003"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/id>            "4" ;
+        <http://bsbm.org/maxQet>        "0.006"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/maxResults>    "0"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/minQet>        "0.006"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/minResults>    "0"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/numTimeouts>   "0"^^<http://www.w3.org/2001/XMLSchema#int> .
+
+<http://bsbm.org/query-9>
+        a                               <http://bsbm.org/QueryStats> ;
+        bsbm:experimentId eg:bsbm-exp1 ;
+        <http://bsbm.org/avgQet>        "0.008"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/avgResults>    "6.0"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/executeCount>  "4"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/frequency>     "125.0"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/geometricMean>
+                "0.0"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/id>            "9" ;
+        <http://bsbm.org/maxQet>        "0.03"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/maxResults>    "6"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/minQet>        "0.0"^^<http://www.w3.org/2001/XMLSchema#double> ;
+        <http://bsbm.org/minResults>    "6"^^<http://www.w3.org/2001/XMLSchema#int> ;
+        <http://bsbm.org/numTimeouts>   "0"^^<http://www.w3.org/2001/XMLSchema#int> .

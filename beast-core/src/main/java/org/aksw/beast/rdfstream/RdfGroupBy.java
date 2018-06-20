@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -17,6 +18,7 @@ import java.util.stream.Stream;
 import org.aksw.beast.enhanced.ModelFactoryEnh;
 import org.aksw.beast.enhanced.ResourceEnh;
 import org.apache.jena.graph.Node;
+import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
@@ -29,13 +31,25 @@ import org.apache.jena.sparql.expr.ExprVar;
 import org.apache.jena.sparql.expr.aggregate.Accumulator;
 import org.apache.jena.sparql.expr.aggregate.Aggregator;
 import org.apache.jena.sparql.util.ModelUtils;
+import org.apache.jena.util.ResourceUtils;
 
 import com.codepoetics.protonpack.StreamUtils;
 
+/**
+ * By default include the closures of the resources that was grouped by
+ * 
+ *
+ * TODO Add support for nested grouping, such as Collectors.groupingBy()
+ *
+ * @author raven
+ *
+ * @param <I>
+ * @param <O>
+ */
 public class RdfGroupBy<I extends Resource, O extends Resource>
     implements Function<Stream<I>, Stream<O>>
-{
-    /**
+{	
+	/**
      * Create a grouper which directly returns enhanced resources.
      *
      * @return
@@ -48,10 +62,25 @@ public class RdfGroupBy<I extends Resource, O extends Resource>
         super();
         this.resourceSupplier = resourceSupplier;
     }
+    
+    
+    // Data to be included into each group
+	protected Model metaModel;
+
+	
+	
+
+    public Model getMetaModel() {
+		return metaModel;
+	}
+
+	public RdfGroupBy<I, O>  setMetaModel(Model metaModel) {
+		this.metaModel = metaModel;
+		return this;
+	}
 
 
-
-    /**
+	/**
      * This map corresponds to the GROUP BY clause.
      * - The key is the result property that will be attached to the group resource.
      * - The value is the property accessor for an attribute of the member resource.
@@ -83,7 +112,7 @@ public class RdfGroupBy<I extends Resource, O extends Resource>
 
     public RdfGroupBy<I, O> on(Property tgtProperty, Property srcProperty) {
 
-        on(tgtProperty, (r) -> r.getProperty(srcProperty).getObject());
+        on(tgtProperty, (r) -> r.getRequiredProperty(srcProperty).getObject());
 
         return this;
     }
@@ -111,7 +140,7 @@ public class RdfGroupBy<I extends Resource, O extends Resource>
     }
 
     public static RDFNode getObject(Resource r, Property p) {
-        Statement stmt = r.getProperty(p);
+        Statement stmt = r.getRequiredProperty(p);
         RDFNode result = stmt == null ? null : stmt.getObject();
         return result;
     }
@@ -211,7 +240,19 @@ public class RdfGroupBy<I extends Resource, O extends Resource>
 
         List<RDFNode> keys = computeValues(member, groupAttrToExpr);
 
-        O result = keysToRes.computeIfAbsent(keys, (ks) -> resourceSupplier.get());
+        O result = keysToRes.computeIfAbsent(keys, (ks) -> {
+        	O groupRes = resourceSupplier.get();
+        	
+        	// Add the reachable closures of the keys
+        	for(RDFNode k : ks) {
+        		if(k.isResource()) {
+        			Model keyClosure = ResourceUtils.reachableClosure(k.asResource());
+        			groupRes.getModel().add(keyClosure);
+        		}
+        	}
+        	
+        	return groupRes;
+        });
 
 
         // Attach key properties
@@ -266,8 +307,15 @@ public class RdfGroupBy<I extends Resource, O extends Resource>
             Map<O, List<Accumulator>> groupToAccs,
             Stream<Property> properties) {
 
+    	if(metaModel != null) {
+    		group.getModel().add(metaModel);
+    	}
+    	
         Stream<RDFNode> values = groupToAccs.get(group).stream()
             .map(Accumulator::getValue)
+            // Note: Stack trace does not include the following line
+            // if we just used .peek(Objects::requireNonNull)
+            .peek(v -> Objects.requireNonNull(v))
             .map(nodeValue -> ModelUtils.convertGraphNodeToRDFNode(nodeValue.asNode(), group.getModel()));
 
         StreamUtils.zip(properties, values, SimpleEntry<Property, RDFNode>::new)
