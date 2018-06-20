@@ -57,6 +57,8 @@
 		<module>beast-examples</module>
 
 		<module>beast-debian-cli</module>
+
+                <module>beast-dummy</module>
 	</modules>
 
 	<properties>
@@ -85,6 +87,12 @@
 			<dependency>
 				<groupId>org.aksw.beast</groupId>
 				<artifactId>beast-cli</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.aksw.beast</groupId>
+				<artifactId>beast-bundle</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 
